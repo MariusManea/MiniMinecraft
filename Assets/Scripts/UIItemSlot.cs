@@ -12,7 +12,7 @@ public class UIItemSlot : MonoBehaviour
     public Image slotIcon;
     public Text slotAmount;
 
-    World world;
+    public World world;
 
     private void Awake()
     {
@@ -60,6 +60,8 @@ public class UIItemSlot : MonoBehaviour
         }
     }
 
+   
+
     public void Clear()
     {
         slotIcon.sprite = null;
@@ -83,6 +85,7 @@ public class ItemSlot
 {
     public ItemStack stack = null;
     private UIItemSlot uiItemSlot = null;
+    public bool isCreative;
 
     public ItemSlot(UIItemSlot _uiItemSlot, ItemStack _stack)
     {
@@ -140,6 +143,32 @@ public class ItemSlot
             }
         }
     }
+
+    public int Add(int _amount)
+    {
+        int newAmount = _amount + stack.amount;
+        int maxItemStack = uiItemSlot.world.blockTypes[stack.ID].maxItemStack;
+
+        if (newAmount > maxItemStack) return maxItemStack;
+        stack.amount = newAmount;
+        uiItemSlot.UpdateSlot();
+        return newAmount;
+
+    }
+
+    public ItemStack TakeAll()
+    {
+        ItemStack handOver = new ItemStack(stack.ID, stack.amount);
+        EmptySlot();
+        return handOver;
+    }
+
+    public void InsertStack(ItemStack _stack)
+    {
+        stack = _stack;
+        uiItemSlot.UpdateSlot();
+    }
+
 
     public bool HasItem
     {

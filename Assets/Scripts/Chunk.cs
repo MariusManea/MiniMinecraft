@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Threading;
 
 public class Chunk
 {
@@ -18,8 +17,10 @@ public class Chunk
     List<int> transparentTriangles = new List<int>();
     List<Vector2> uvs = new List<Vector2>();
     Material[] materials = new Material[2];
+    List<Color> colors = new List<Color>();
+    List<Vector3> normals = new List<Vector3>();
 
-    public byte[,,] voxelMap = new byte[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
+    public VoxelState[,,] voxelMap = new VoxelState[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
     public Queue<VoxelMod> modifications = new Queue<VoxelMod>();
     World world;
 
@@ -27,21 +28,13 @@ public class Chunk
 
     private bool isVoxelMapPopulated = false;
 
-    private bool threadLocked = false;
 
     public Vector3 position;
 
-    public Chunk (ChunkCoord _coord, World _world, bool generateOnLoad)
+    public Chunk (ChunkCoord _coord, World _world)
     {
         coord = _coord;
         world = _world;
-        isActive = true;
-
-        if (generateOnLoad)
-        {
-            Init();
-        }
-        
     }
 
     public void Init()
@@ -59,8 +52,8 @@ public class Chunk
         chunkObject.name = "chunk_x_" + coord.x + "_z_" + coord.z;
         position = chunkObject.transform.position;
 
-        Thread populateVoxelMapThread = new Thread(new ThreadStart(PopulateVoxelMap));
-        populateVoxelMapThread.Start();
+        PopulateVoxelMap();
+        
     }
 
     void PopulateVoxelMap()
@@ -72,12 +65,15 @@ public class Chunk
             {
                 for (int z = 0; z < VoxelData.ChunkWidth; ++z)
                 {
-                    voxelMap[x, y, z] = world.GetVoxel(new Vector3(x, y, z) + position);
+                    voxelMap[x, y, z] = new VoxelState(world.GetVoxel(new Vector3(x, y, z) + position));
                 }
             }
         }
-        _UpdateChunk();
         isVoxelMapPopulated = true;
+        lock (world.chunkUpdateThreadLock)
+        {
+            world.chunksToUpdate.Add(this);
+        }
     }
 
     bool IsVoxelInChunk(int x, int y, int z)
@@ -91,7 +87,7 @@ public class Chunk
         return true;
     }
 
-    bool CheckVoxel(Vector3 pos)
+    VoxelState CheckVoxel(Vector3 pos)
     {
         int x = Mathf.FloorToInt(pos.x);
         int y = Mathf.FloorToInt(pos.y);
@@ -99,13 +95,13 @@ public class Chunk
 
         if (!IsVoxelInChunk(x, y, z))
         {
-            return world.CheckForTransparentVoxel(pos + position);
+            return world.GetVoxelState(pos + position);
         }
 
-        return world.blockTypes[voxelMap[x, y, z]].isTransparent;
+        return voxelMap[x, y, z];
     }
 
-    public byte GetVoxelFromGlobalVector3(Vector3 pos)
+    public VoxelState GetVoxelFromGlobalVector3(Vector3 pos)
     {
         int xCheck = Mathf.FloorToInt(pos.x);
         int yCheck = Mathf.FloorToInt(pos.y);
@@ -117,25 +113,19 @@ public class Chunk
         return voxelMap[xCheck, yCheck, zCheck];
     }
 
+
     public void UpdateChunk()
     {
-        Thread updateChunkThread = new Thread(new ThreadStart(_UpdateChunk));
-        updateChunkThread.Start();
-    }
-
-    private void _UpdateChunk()
-    {
-        threadLocked = true;
-
         while (modifications.Count > 0)
         {
             VoxelMod vMod = modifications.Dequeue();
             Vector3 pos = vMod.position -= position;
             if (pos.y >= VoxelData.ChunkHeight) continue;
-            voxelMap[(int)pos.x, (int)pos.y, (int)pos.z] = vMod.id;
+            voxelMap[(int)pos.x, (int)pos.y, (int)pos.z].id = vMod.id;
         }
 
         ClearMeshData();
+        CalculateLight();
 
         for (int y = 0; y < VoxelData.ChunkHeight; ++y)
         {
@@ -143,7 +133,7 @@ public class Chunk
             {
                 for (int z = 0; z < VoxelData.ChunkWidth; ++z)
                 {
-                    if (world.blockTypes[voxelMap[x, y, z]].isSolid)
+                    if (world.blockTypes[voxelMap[x, y, z].id].isSolid)
                         UpdateMeshData(new Vector3(x, y, z));
                 }
             }
@@ -153,8 +143,6 @@ public class Chunk
         {
             world.chunksToDraw.Enqueue(this);
         }
-
-        threadLocked = false;
     }
 
     public bool isActive
@@ -173,19 +161,25 @@ public class Chunk
     {
         get
         {
-            if (!isVoxelMapPopulated || threadLocked) return false;
+            if (!isVoxelMapPopulated) return false;
             else return true;
         }
     }
 
     void UpdateMeshData (Vector3 pos)
     {
-        byte blockID = voxelMap[(int)pos.x, (int)pos.y, (int)pos.z];
-        bool isTransparent = world.blockTypes[blockID].isTransparent;
+        int x = Mathf.FloorToInt(pos.x);
+        int y = Mathf.FloorToInt(pos.y);
+        int z = Mathf.FloorToInt(pos.z);
+
+        byte blockID = voxelMap[x, y, z].id;
+        bool isTransparent = world.blockTypes[blockID].renderNeighbourFaces;
 
         for (int t = 0; t < 6; ++t)
         {
-            if (CheckVoxel(pos + VoxelData.faceChecks[t]))
+            VoxelState neighbor = CheckVoxel(pos + VoxelData.faceChecks[t]);
+
+            if (neighbor != null && world.blockTypes[neighbor.id].renderNeighbourFaces)
             {
 
                 vertices.Add(pos + VoxelData.voxelVertices[VoxelData.voxelTriangles[t, 0]]);
@@ -193,8 +187,21 @@ public class Chunk
                 vertices.Add(pos + VoxelData.voxelVertices[VoxelData.voxelTriangles[t, 2]]);
                 vertices.Add(pos + VoxelData.voxelVertices[VoxelData.voxelTriangles[t, 3]]);
 
+                normals.Add(VoxelData.faceChecks[t]);
+                normals.Add(VoxelData.faceChecks[t]);
+                normals.Add(VoxelData.faceChecks[t]);
+                normals.Add(VoxelData.faceChecks[t]);
+
                 AddTexture(world.blockTypes[blockID].GetTextureID(t));
-                if (!isTransparent)
+
+                float lightLevel = neighbor.globalLightPercent;
+
+                colors.Add(new Color(0, 0, 0, lightLevel));
+                colors.Add(new Color(0, 0, 0, lightLevel));
+                colors.Add(new Color(0, 0, 0, lightLevel));
+                colors.Add(new Color(0, 0, 0, lightLevel));
+
+                if (!world.blockTypes[neighbor.id].renderNeighbourFaces)
                 {
                     triangles.Add(vertexIndex);
                     triangles.Add(vertexIndex + 1);
@@ -202,7 +209,7 @@ public class Chunk
                     triangles.Add(vertexIndex + 2);
                     triangles.Add(vertexIndex + 1);
                     triangles.Add(vertexIndex + 3);
-                } 
+                }
                 else
                 {
                     transparentTriangles.Add(vertexIndex);
@@ -226,10 +233,62 @@ public class Chunk
         mesh.SetTriangles(triangles.ToArray(), 0);
         mesh.SetTriangles(transparentTriangles.ToArray(), 1);
         mesh.uv = uvs.ToArray();
-
-        mesh.RecalculateNormals();
+        mesh.colors = colors.ToArray();
+        mesh.normals = normals.ToArray();
 
         meshFilter.mesh = mesh;
+    }
+
+    void CalculateLight()
+    {
+        Queue<Vector3Int> litVoxels = new Queue<Vector3Int>();
+
+        for (int x = 0; x < VoxelData.ChunkWidth; ++x)
+        {
+            for (int z = 0; z < VoxelData.ChunkWidth; ++z)
+            {
+                float lightRay = 1f;
+                for (int y = VoxelData.ChunkHeight - 1; y >= 0; --y)
+                {
+                    VoxelState thisVoxel = voxelMap[x, y, z];
+                    if (thisVoxel.id > 0 && world.blockTypes[thisVoxel.id].transparency < lightRay)
+                    {
+                        lightRay = world.blockTypes[thisVoxel.id].transparency;
+                    }
+                    thisVoxel.globalLightPercent = lightRay;
+                    voxelMap[x, y, z] = thisVoxel;
+
+                    if (lightRay > VoxelData.lightFalloff)
+                    {
+                        litVoxels.Enqueue(new Vector3Int(x, y, z));
+                    }
+                }
+
+            }
+        }
+
+        while (litVoxels.Count > 0)
+        {
+            Vector3Int lV = litVoxels.Dequeue();
+            for (int t = 0; t < 6; ++t)
+            {
+                Vector3 currentVoxel = lV + VoxelData.faceChecks[t];
+                Vector3Int neighbor = new Vector3Int((int)currentVoxel.x, (int)currentVoxel.y, (int)currentVoxel.z);
+
+                if (IsVoxelInChunk(neighbor.x, neighbor.y, neighbor.z))
+                {
+                    if (voxelMap[neighbor.x, neighbor.y, neighbor.z].globalLightPercent < voxelMap[lV.x, lV.y, lV.z].globalLightPercent - VoxelData.lightFalloff)
+                    {
+                        voxelMap[neighbor.x, neighbor.y, neighbor.z].globalLightPercent = voxelMap[lV.x, lV.y, lV.z].globalLightPercent - VoxelData.lightFalloff;
+
+                        if (voxelMap[neighbor.x, neighbor.y, neighbor.z].globalLightPercent > VoxelData.lightFalloff)
+                        {
+                            litVoxels.Enqueue(neighbor);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void ClearMeshData()
@@ -239,6 +298,8 @@ public class Chunk
         triangles.Clear();
         transparentTriangles.Clear();
         uvs.Clear();
+        colors.Clear();
+        normals.Clear();
     }
 
     public void EditVoxel(Vector3 pos, byte newID)
@@ -250,10 +311,12 @@ public class Chunk
         xCheck -= Mathf.FloorToInt(chunkObject.transform.position.x);
         zCheck -= Mathf.FloorToInt(chunkObject.transform.position.z);
 
-        voxelMap[xCheck, yCheck, zCheck] = newID;
-
-        _UpdateChunk();
-        UpdateSurroundingVoxels(xCheck, yCheck, zCheck);
+        voxelMap[xCheck, yCheck, zCheck].id = newID;
+        lock (world.chunkUpdateThreadLock)
+        {
+            world.chunksToUpdate.Insert(0, this);
+            UpdateSurroundingVoxels(xCheck, yCheck, zCheck);
+        }
     }
 
     void UpdateSurroundingVoxels(int x, int y, int z)
@@ -266,7 +329,7 @@ public class Chunk
 
             if (!IsVoxelInChunk((int)currentVoxel.x, (int)currentVoxel.y, (int)currentVoxel.z))
             {
-                world.GetChunkFromVector3(currentVoxel + position).UpdateChunk();
+                world.chunksToUpdate.Insert(0, world.GetChunkFromVector3(currentVoxel + position));
             }
         }
     }
@@ -318,5 +381,22 @@ public class ChunkCoord
     {
         if (other == null) return false;
         return other.x == x && other.z == z;
+    }
+}
+
+public class VoxelState
+{
+    public byte id;
+    public float globalLightPercent;
+
+    public VoxelState()
+    {
+        id = 0;
+        globalLightPercent = 0f;
+    }
+
+    public VoxelState(byte _id)
+    {
+        id = _id;
     }
 }

@@ -12,11 +12,15 @@ public class Toolbar : MonoBehaviour
 
     public void Start()
     {
-        Debug.Log("toolbar start");
         byte index = 2;
         foreach (UIItemSlot s in uiItemSlots)
         {
-            ItemStack stack = new ItemStack(index, Random.Range(2, 65));
+            if (index == uiItemSlots.Length - 1)
+            {
+                ItemSlot emptySlot = new ItemSlot(s);
+                continue;
+            }
+            ItemStack stack = new ItemStack((byte)(index % 2 == 0 ? index : index - 1), Random.Range(2, 65));
             ItemSlot slot = new ItemSlot(s, stack);
             index++;
         }

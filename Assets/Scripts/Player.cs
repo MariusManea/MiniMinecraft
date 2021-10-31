@@ -18,7 +18,6 @@ public class Player : MonoBehaviour
     private bool isSprinting;
     private bool isCrouching;
 
-    public float sensitivity = 10f;
     public float crouchSpeed = 1f;
     public float walkSpeed = 3f;
     public float sprintSpeed = 6f;
@@ -42,11 +41,10 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
         FPSCamera = FindObjectOfType<Camera>().transform;
         world = FindObjectOfType<World>();
 
-
+        world.inUI = false;
     }
 
     private void FixedUpdate()
@@ -61,14 +59,19 @@ public class Player : MonoBehaviour
             world.inUI = !world.inUI;
         }
 
+        if (world.inUI && Input.GetKeyDown(KeyCode.Escape))
+        {
+            world.inUI = false;
+        }
+
         if (!world.inUI)
         {
             GetPlayerInput();
             if (jumpRequest) Jump();
 
             CalculateVelocity();
-            transform.Rotate(Vector3.up * mouseHorizontal * sensitivity);
-            FPSCamera.Rotate(Vector3.right * -mouseVertical * sensitivity);
+            transform.Rotate(Vector3.up * mouseHorizontal * world.settings.mouseSensitivity);
+            FPSCamera.Rotate(Vector3.right * -mouseVertical * world.settings.mouseSensitivity);
 
             transform.Translate(velocity, Space.World);
             PlaceCursorBlock();
@@ -120,6 +123,11 @@ public class Player : MonoBehaviour
 
     private void GetPlayerInput()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            Application.Quit();
+        }
+
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 

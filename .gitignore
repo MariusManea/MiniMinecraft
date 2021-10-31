@@ -4,3 +4,5 @@ obj/*
 ProjectSettings/*
 Temp/*
 .vs*
+
+Demo/*
