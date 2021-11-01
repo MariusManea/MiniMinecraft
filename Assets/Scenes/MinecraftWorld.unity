@@ -386,12 +386,15 @@ MonoBehaviour:
     version: 0.0.1
     viewDistance: 4
     enableThreading: 1
+    enableAnimatedChunks: 0
     mouseSensitivity: 2
     seed: 2147483647
-  defaultBiome: {fileID: 11400000, guid: f3cbe05a057e2a74a96760c6b88b77eb, type: 2}
-  globalLightLevel: 1
-  day: {r: 0.033241354, g: 0.5536751, b: 0.7830189, a: 0}
-  night: {r: 0.03604486, g: 0.09059537, b: 0.2830189, a: 0}
+  biomes:
+  - {fileID: 11400000, guid: f3cbe05a057e2a74a96760c6b88b77eb, type: 2}
+  - {fileID: 11400000, guid: 61f99ba629d1ef74c9ff5f89ca0627c6, type: 2}
+  globalLightLevel: 0.534
+  day: {r: 0.03644534, g: 0.6058829, b: 0.8584906, a: 0}
+  night: {r: 0.016687432, g: 0.06539004, b: 0.23584908, a: 0}
   player: {fileID: 927796238}
   spawnPosition: {x: 0, y: 0, z: 0}
   material: {fileID: 2100000, guid: 898f9087255a0fc48a8c6b006497291f, type: 2}

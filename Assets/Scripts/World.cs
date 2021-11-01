@@ -9,7 +9,7 @@ public class World : MonoBehaviour
     public Settings settings;
 
     [Header("World Generation Values")]
-    public BiomeAttributes defaultBiome;
+    public BiomeAttributes[] biomes;
 
     [Range(0f, 1f)]
     public float globalLightLevel;
@@ -224,6 +224,7 @@ public class World : MonoBehaviour
         return chunks[x, z];
     }
 
+
     void CheckViewDistance()
     {
         ChunkCoord coord = GetChunkCoordFromVector3(player.position);
@@ -299,20 +300,49 @@ public class World : MonoBehaviour
         if (yPos == 0)
             return 1;
 
+        /* BIOME SELECTION PASS */
+
+        int solidGroundHeight = 64;
+        float sumOfHeights = 0f;
+        int count = 0;
+        float strongestWeight = 0;
+        int strongestBiomeIndex = 0;
+
+        for (int i = 0; i < biomes.Length; ++i)
+        {
+            float weight = Noise.Get2DPerlin(new Vector2(pos.x, pos.z), biomes[i].offset, biomes[i].scale);
+            if (weight > strongestWeight)
+            {
+                strongestWeight = weight;
+                strongestBiomeIndex = i;
+            }
+
+            float height = biomes[i].terrainHeight * Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 0, biomes[i].terrainScale) * weight;
+            if (height > 0)
+            {
+                sumOfHeights += height;
+                count++;
+            }
+        }
+        BiomeAttributes biome = biomes[strongestBiomeIndex];
+
+        sumOfHeights /= count;
+
+        int terrainHeight = Mathf.FloorToInt(sumOfHeights + solidGroundHeight);
+
         /* BASIC TERRAIN PASS */
 
-        int terrainHeight = Mathf.FloorToInt(Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 0, defaultBiome.terrainScale) * defaultBiome.terrainHeight) + defaultBiome.solidGroundHeight;
         byte voxelValue = 0;
 
         if (yPos == terrainHeight)
         {
-            voxelValue = 3;
+            voxelValue = biome.surfaceBlock;
         }
         else
         {
             if (yPos < terrainHeight && yPos > terrainHeight - 4)
             {
-                voxelValue = 6;
+                voxelValue = biome.subSurfaceBlock;
             }
             else
             {
@@ -328,10 +358,10 @@ public class World : MonoBehaviour
             }
         }
 
-        /* SECOND PASS */
+        /* LODE PASS */
         if (voxelValue == 2)
         {
-            foreach(Lode lode in defaultBiome.lodes)
+            foreach(Lode lode in biome.lodes)
             {
                 if (yPos > lode.minHeight && yPos < lode.maxHeight)
                 {
@@ -343,14 +373,14 @@ public class World : MonoBehaviour
             }
         }
 
-        /* TREE PASS */
-        if (yPos == terrainHeight)
+        /* MAJOR FLORA PASS */
+        if (yPos == terrainHeight && biome.placeMajorFlora)
         {
-            if (Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 300, defaultBiome.treeZoneScale) > defaultBiome.treeZoneThreshold)
+            if (Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 300, biome.majorFloraZoneScale) > biome.majorFloraZoneThreshold)
             {
-                if (Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 700, defaultBiome.treePlacementScale) > defaultBiome.treePlacementThreshold)
+                if (Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 700, biome.majorFloraPlacementScale) > biome.majorFloraPlacementThreshold)
                 {
-                    modifications.Enqueue(Structure.MakeTree(pos, defaultBiome.minTreeHeight, defaultBiome.maxTreeHeight));
+                    modifications.Enqueue(Structure.GenerateMajorFlora(biome.majorFloraIndex, pos, biome.minMajorFloraHeight, biome.maxMajorFloraHeight));
                 }
             }
         }
@@ -513,6 +543,7 @@ public class Settings
     [Header("Performance")]
     public int viewDistance;
     public bool enableThreading;
+    public bool enableAnimatedChunks;
 
     [Header("Controls")]
     [Range(0.5f, 20f)]

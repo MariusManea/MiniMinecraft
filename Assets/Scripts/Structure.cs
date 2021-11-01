@@ -4,6 +4,19 @@ using UnityEngine;
 
 public static class Structure
 {
+    public static Queue<VoxelMod> GenerateMajorFlora(int index, Vector3 position, int minTreeHeight, int maxTreeHeight)
+    {
+        switch (index)
+        {
+            case 0:
+                return MakeTree(position, minTreeHeight, maxTreeHeight);
+            case 1:
+                return MakeCacti(position, minTreeHeight, maxTreeHeight);
+            default:
+                return new Queue<VoxelMod>();
+        }
+    }
+
     public static Queue<VoxelMod> MakeTree(Vector3 position, int minTreeHeight, int maxTreeHeight)
     {
         Queue<VoxelMod> queue = new Queue<VoxelMod>();
@@ -17,16 +30,33 @@ public static class Structure
             queue.Enqueue(new VoxelMod(new Vector3(0, i, 0) + position, 7));
         }
 
-        for (int x = -3; x < 4; ++x)
+        for (int y = 0; y < 7; ++y)
         {
-            for (int y = 0; y < 7; ++y)
+            int cutValue = Mathf.Abs(7 / 2 - y) / 2;
+            for (int x = -3 + cutValue; x < 4 - cutValue; ++x)
             {
-                for (int z = -3; z < 4; ++z)
+                for (int z = -3 + cutValue; z < 4 - cutValue; ++z)
                 {
-                    queue.Enqueue(new VoxelMod(new Vector3(x, height + y, z) + position, 11));
-
-                }
+                    if (y < 2 && x == 0 && z == 0) continue;
+                    queue.Enqueue(new VoxelMod(new Vector3(x, height + y - 2, z) + position, 11));
+                }   
             }
+        }
+
+        return queue;
+    }
+
+    public static Queue<VoxelMod> MakeCacti(Vector3 position, int minTreeHeight, int maxTreeHeight)
+    {
+        Queue<VoxelMod> queue = new Queue<VoxelMod>();
+
+        int height = (int)(maxTreeHeight * Noise.Get2DPerlin(new Vector2(position.x, position.z), 3321f, 4f));
+
+        if (height < minTreeHeight) height = minTreeHeight;
+
+        for (int i = 1; i <= height; ++i)
+        {
+            queue.Enqueue(new VoxelMod(new Vector3(0, i, 0) + position, 12));
         }
 
         return queue;
