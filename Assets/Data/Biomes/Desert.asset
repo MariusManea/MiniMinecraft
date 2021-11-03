@@ -15,17 +15,17 @@ MonoBehaviour:
   biomeName: Desert
   offset: 23843
   scale: 0.058
-  terrainHeight: 16
-  terrainScale: 0.3
+  terrainHeight: 24
+  terrainScale: 0.2
   surfaceBlock: 5
   subSurfaceBlock: 5
   majorFloraIndex: 1
   majorFloraZoneScale: 1.06
   majorFloraZoneThreshold: 0.75
-  majorFloraPlacementScale: 7.5
+  majorFloraPlacementScale: 12
   majorFloraPlacementThreshold: 0.8
-  maxMajorFloraHeight: 3
-  minMajorFloraHeight: 1
+  maxMajorFloraHeight: 5
+  minMajorFloraHeight: 2
   placeMajorFlora: 1
   lodes:
   - nodeName: Dirt

@@ -386,12 +386,13 @@ MonoBehaviour:
     version: 0.0.1
     viewDistance: 4
     enableThreading: 1
+    clouds: 1
     enableAnimatedChunks: 0
     mouseSensitivity: 2
-    seed: 2147483647
   biomes:
   - {fileID: 11400000, guid: f3cbe05a057e2a74a96760c6b88b77eb, type: 2}
   - {fileID: 11400000, guid: 61f99ba629d1ef74c9ff5f89ca0627c6, type: 2}
+  - {fileID: 11400000, guid: 367e6a102bd62f94584fee0b89b8cd00, type: 2}
   globalLightLevel: 0.534
   day: {r: 0.03644534, g: 0.6058829, b: 0.8584906, a: 0}
   night: {r: 0.016687432, g: 0.06539004, b: 0.23584908, a: 0}
@@ -544,6 +545,19 @@ MonoBehaviour:
     bottomFaceTexture: 16
     leftFaceTexture: 16
     rightFaceTexture: 16
+  - blockName: Cactus
+    isSolid: 1
+    renderNeighbourFaces: 0
+    transparency: 0
+    icon: {fileID: -7538633921802359561, guid: ca4866db6ad26bf41a0ad56a753674d3, type: 3}
+    maxItemStack: 64
+    backFaceTexture: 18
+    frontFaceTexture: 18
+    topFaceTexture: 17
+    bottomFaceTexture: 19
+    leftFaceTexture: 18
+    rightFaceTexture: 18
+  clouds: {fileID: 564449497}
   debugScreen: {fileID: 672122958}
   applyModifications: 0
   creativeInventoryMenu: {fileID: 40228834}
@@ -811,6 +825,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32ed5f2139c9bbb42b389b4c9fa5e371, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &564449494
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 564449498}
+  - component: {fileID: 564449497}
+  m_Layer: 0
+  m_Name: Clouds
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &564449497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564449494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbb12d4b7c7458a4aaf41201713a7ade, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cloudHeight: 85
+  cloudPattern: {fileID: 2800000, guid: b0973328922da5340a804e94c385672f, type: 3}
+  cloudMat: {fileID: 2100000, guid: a5fcb2e2ef944694a8366233357ee384, type: 2}
+  world: {fileID: 281121030}
+--- !u!4 &564449498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564449494}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &625418259 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4817104551127837971, guid: d414c67926971544797955a3a4769fee, type: 3}
@@ -1889,7 +1950,7 @@ RectTransform:
   m_GameObject: {fileID: 1637404593}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 4, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children:
   - {fileID: 13071023}
   - {fileID: 625418259}

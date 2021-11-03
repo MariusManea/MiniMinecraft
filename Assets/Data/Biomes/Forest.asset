@@ -12,20 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a62491913d414d46ba0d2d10cf3db64, type: 3}
   m_Name: Forest
   m_EditorClassIdentifier: 
-  biomeName: Desert
-  offset: 23843
-  scale: 0.058
-  terrainHeight: 16
+  biomeName: Forest
+  offset: 57839
+  scale: 0.17
+  terrainHeight: 80
   terrainScale: 0.3
-  surfaceBlock: 5
-  subSurfaceBlock: 5
-  majorFloraIndex: 1
-  majorFloraZoneScale: 1.06
-  majorFloraZoneThreshold: 0.75
-  majorFloraPlacementScale: 7.5
-  majorFloraPlacementThreshold: 0.8
-  maxMajorFloraHeight: 3
-  minMajorFloraHeight: 1
+  surfaceBlock: 3
+  subSurfaceBlock: 6
+  majorFloraIndex: 0
+  majorFloraZoneScale: 1.3
+  majorFloraZoneThreshold: 0.339
+  majorFloraPlacementScale: 10
+  majorFloraPlacementThreshold: 0.84
+  maxMajorFloraHeight: 12
+  minMajorFloraHeight: 5
   placeMajorFlora: 1
   lodes:
   - nodeName: Dirt

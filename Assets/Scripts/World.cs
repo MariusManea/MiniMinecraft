@@ -22,6 +22,7 @@ public class World : MonoBehaviour
     public Material material;
     public Material transparentMaterial;
     public BlockType[] blockTypes;
+    public Clouds clouds;
 
     Chunk[,] chunks = new Chunk[VoxelData.WorldSizeInChunks, VoxelData.WorldSizeInChunks];
 
@@ -50,14 +51,13 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        /*string jsonExport = JsonUtility.ToJson(settings);
-        Debug.Log(jsonExport);
-        File.WriteAllText(Application.dataPath + "/settings.cfg", jsonExport);*/
+        Debug.Log(VoxelData.seed);
+        
 
         string jsonImport = File.ReadAllText(Application.dataPath + "/settings.cfg");
         settings = JsonUtility.FromJson<Settings>(jsonImport);
 
-        Random.InitState(settings.seed);
+        Random.InitState(VoxelData.seed);
 
         Shader.SetGlobalFloat("minGlobalLightLevel", VoxelData.minLightLevel);
         Shader.SetGlobalFloat("maxGlobalLightLevel", VoxelData.maxLightLevel);
@@ -68,7 +68,7 @@ public class World : MonoBehaviour
             chunkUpdateThread.Start();
         }
         SetGlobalLightValue();
-        spawnPosition = new Vector3((VoxelData.WorldSizeInChunks * VoxelData.ChunkWidth) / 2f, VoxelData.ChunkHeight + 2, (VoxelData.WorldSizeInChunks * VoxelData.ChunkWidth) / 2f);
+        spawnPosition = new Vector3(VoxelData.WorldCenter, VoxelData.ChunkHeight - 10, VoxelData.WorldCenter);
         GenerateWorld();
         playerLastChunkCoord = GetChunkCoordFromVector3(player.position);
     }
@@ -227,6 +227,8 @@ public class World : MonoBehaviour
 
     void CheckViewDistance()
     {
+        clouds.UpdateClouds();
+
         ChunkCoord coord = GetChunkCoordFromVector3(player.position);
         playerLastChunkCoord = playerChunkCoord;
 
@@ -538,17 +540,15 @@ public class VoxelMod
 public class Settings
 {
     [Header("Game Data")]
-    public string version;
+    public string version = "0.0.0.1";
 
     [Header("Performance")]
-    public int viewDistance;
-    public bool enableThreading;
-    public bool enableAnimatedChunks;
+    public int viewDistance = 8;
+    public bool enableThreading = true;
+    public CloudStyle clouds = CloudStyle.Fast;
+    public bool enableAnimatedChunks = false;
 
     [Header("Controls")]
     [Range(0.5f, 20f)]
-    public float mouseSensitivity;
-
-    [Header("World Gen")]
-    public int seed;
+    public float mouseSensitivity = 2.0f;
 }

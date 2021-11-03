@@ -15,15 +15,15 @@ MonoBehaviour:
   biomeName: Plains
   offset: 78683
   scale: 0.042
-  terrainHeight: 24
-  terrainScale: 5
+  terrainHeight: 16
+  terrainScale: 0.15
   surfaceBlock: 3
   subSurfaceBlock: 6
   majorFloraIndex: 0
   majorFloraZoneScale: 1.3
-  majorFloraZoneThreshold: 0.2
+  majorFloraZoneThreshold: 0.896
   majorFloraPlacementScale: 15
-  majorFloraPlacementThreshold: 0.4
+  majorFloraPlacementThreshold: 0.59
   maxMajorFloraHeight: 9
   minMajorFloraHeight: 4
   placeMajorFlora: 1
