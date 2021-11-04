@@ -57,6 +57,7 @@
     <Compile Include="Assets\Scripts\CreativeInventory.cs" />
     <Compile Include="Assets\Scripts\Toolbar.cs" />
     <Compile Include="Assets\Scripts\SimpleCameraController.cs" />
+    <Compile Include="Assets\Scripts\Clouds.cs" />
     <Compile Include="Assets\Scripts\ChunkLoadAnimation.cs" />
     <Compile Include="Assets\Scripts\ItemStack.cs" />
     <Compile Include="Assets\Scripts\VoxelData.cs" />
@@ -69,7 +70,9 @@
     <Compile Include="Assets\Scripts\UI\TitleMenu.cs" />
     <Compile Include="Assets\Scripts\World.cs" />
     <Compile Include="Assets\Scripts\Structure.cs" />
-    <Compile Include="Assets\Scripts\Clouds.cs" />
+    <Compile Include="Assets\Scripts\Data\WorldData.cs" />
+    <Compile Include="Assets\Scripts\Data\ChunkData.cs" />
+    <Compile Include="Assets\Scripts\SaveSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Scripts\CloudsShader.shader" />
