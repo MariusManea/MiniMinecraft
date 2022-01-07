@@ -27,7 +27,7 @@ public class AtlasPacker : EditorWindow
 
         GUILayout.Label("MiniMinecraft Texture Atlas Packer", EditorStyles.boldLabel);
         blockSize = EditorGUILayout.IntField("Block Size", blockSize);
-        atlasSizeInBlocks = EditorGUILayout.IntField("Block Size", atlasSizeInBlocks);
+        atlasSizeInBlocks = EditorGUILayout.IntField("Atlas Size In Blocks", atlasSizeInBlocks);
 
         GUILayout.Label(atlas);
         if (GUILayout.Button("Load Textures"))
@@ -96,7 +96,7 @@ public class AtlasPacker : EditorWindow
 
                 if (index < sortedTextures.Count)
                 {
-                    pixels[(atlasSize - y - 1) * atlasSize + x] = sortedTextures[index].GetPixel(x, blockSize - y - 1);
+                    pixels[(atlasSize - y - 1) * atlasSize + x] = sortedTextures[index].GetPixel(currentPixelX, blockSize - currentPixelY - 1);
                 }
                 else
                 {

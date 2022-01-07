@@ -49,8 +49,15 @@ public class UIItemSlot : MonoBehaviour
     {
         if (itemSlot != null && itemSlot.HasItem)
         {
-            slotIcon.sprite = world.blockTypes[itemSlot.stack.ID].icon;
-            slotAmount.text = itemSlot.stack.amount.ToString();
+            slotIcon.sprite = world.itemTypes[itemSlot.stack.ID].icon;
+            if (itemSlot.stack.amount > 1)
+            {
+                slotAmount.text = itemSlot.stack.amount.ToString();
+            }
+            else
+            {
+                slotAmount.text = "";
+            }
             slotIcon.enabled = true;
             slotAmount.enabled = true;
         }
@@ -87,6 +94,9 @@ public class ItemSlot
     private UIItemSlot uiItemSlot = null;
     public bool isCreative;
 
+    private VoxelState container;
+    private int index;
+
     public ItemSlot(UIItemSlot _uiItemSlot, ItemStack _stack)
     {
         stack = _stack;
@@ -111,13 +121,42 @@ public class ItemSlot
         uiItemSlot = null;
     }
 
+    public bool IsContainerLinked()
+    {
+        return container != null;
+    }
+
+    public VoxelState GetContainer()
+    {
+        return container;
+    }
+
+    public int GetIndex()
+    {
+        return index;
+    }
+
     public void EmptySlot()
     {
         stack = null;
+        if (container != null && container.itemsContained != null && index >= 0 && index < container.itemsContained.Length)
+        {
+            container.itemsContained[index] = null;
+            if (World.Instance.blockTypes[container.id].itemID == ItemID.FURNANCE)
+            {
+                container.chunkData.chunk.AddActiveVoxel(container);
+            }
+        }
         if (uiItemSlot != null)
         {
             uiItemSlot.UpdateSlot();
         }
+    }
+
+    public void UnlinkContainer()
+    {
+        container = null;
+        index = -1;
     }
 
     public int Take(int _amount)
@@ -133,6 +172,14 @@ public class ItemSlot
             if (_amount < stack.amount)
             {
                 stack.amount -= _amount;
+                if (container != null && container.itemsContained != null && index >= 0 && index < container.itemsContained.Length)
+                {
+                    container.itemsContained[index].amount -= _amount;
+                    if (World.Instance.blockTypes[container.id].itemID == ItemID.FURNANCE)
+                    {
+                        container.chunkData.chunk.AddActiveVoxel(container);
+                    }
+                }
                 uiItemSlot.UpdateSlot();
                 return _amount;
             }
@@ -147,10 +194,18 @@ public class ItemSlot
     public int Add(int _amount)
     {
         int newAmount = _amount + stack.amount;
-        int maxItemStack = uiItemSlot.world.blockTypes[stack.ID].maxItemStack;
+        int maxItemStack = uiItemSlot.world.itemTypes[stack.ID].maxItemStack;
 
         if (newAmount > maxItemStack) return maxItemStack;
         stack.amount = newAmount;
+        if (container != null && container.itemsContained != null && index >= 0 && index < container.itemsContained.Length)
+        {
+            container.itemsContained[index].amount = newAmount;
+            if (World.Instance.blockTypes[container.id].itemID == ItemID.FURNANCE)
+            {
+                container.chunkData.chunk.AddActiveVoxel(container);
+            }
+        }
         uiItemSlot.UpdateSlot();
         return newAmount;
 
@@ -163,9 +218,24 @@ public class ItemSlot
         return handOver;
     }
 
+    public void InsertStackAndLinkToContainer(ItemStack _stack, VoxelState _container, int _index)
+    {
+        if (_stack != null && _stack.amount > 0) InsertStack(_stack);
+        container = _container;
+        index = _index;
+    }
+
     public void InsertStack(ItemStack _stack)
     {
         stack = _stack;
+        if (container != null && container.itemsContained != null && index >= 0 && index < container.itemsContained.Length)
+        {
+            container.itemsContained[index] = new ItemStack(_stack);
+            if (World.Instance.blockTypes[container.id].itemID == ItemID.FURNANCE)
+            {
+                container.chunkData.chunk.AddActiveVoxel(container);
+            }
+        }
         uiItemSlot.UpdateSlot();
     }
 

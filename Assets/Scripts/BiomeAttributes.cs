@@ -14,8 +14,8 @@ public class BiomeAttributes : ScriptableObject
     public float terrainScale;
 
 
-    public byte surfaceBlock;
-    public byte subSurfaceBlock;
+    public VoxelBlockID surfaceBlock;
+    public VoxelBlockID subSurfaceBlock;
 
     [Header("Major Flora")]
     public int majorFloraIndex;
@@ -36,7 +36,7 @@ public class BiomeAttributes : ScriptableObject
 public class Lode
 {
     public string nodeName;
-    public byte blockID;
+    public VoxelBlockID blockID;
 
     public int minHeight;
     public int maxHeight;

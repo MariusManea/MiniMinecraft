@@ -17,12 +17,17 @@ public class World : MonoBehaviour
     public Color night;
 
     public Transform player;
+    public Player _player;
     public Vector3 spawnPosition;
 
     public Material material;
     public Material transparentMaterial;
+    public Material liquidMaterial;
     public BlockType[] blockTypes;
+    public Item[] itemTypes;
     public Clouds clouds;
+
+    public GameObject[] overworldMobs;
 
     Chunk[,] chunks = new Chunk[VoxelData.WorldSizeInChunks, VoxelData.WorldSizeInChunks];
 
@@ -31,19 +36,25 @@ public class World : MonoBehaviour
     public ChunkCoord playerChunkCoord;
     ChunkCoord playerLastChunkCoord;
 
-    public List<ChunkCoord> chunksToCreate = new List<ChunkCoord>();
-
     public GameObject debugScreen;
 
     public bool applyModifications;
 
     Queue<Queue<VoxelMod>> modifications = new Queue<Queue<VoxelMod>>();
-    public List<Chunk> chunksToUpdate = new List<Chunk>();
+    private List<Chunk> chunksToUpdate = new List<Chunk>();
     public Queue<Chunk> chunksToDraw = new Queue<Chunk>();
 
     private bool _inUI = false;
+    private bool _mainUI = false;
 
     public GameObject creativeInventoryMenu;
+    public GameObject survivalInventoryMenu;
+    public GameObject chestInventoryMenu;
+    public GameObject furnanceInventoryMenu;
+    public GameObject armorInventoryMenu;
+    public GameObject handCraftInventoryMenu;
+    public GameObject craftInventoryMenu;
+    public GameObject toolbar;
     public GameObject cursorSlot;
 
     Thread chunkUpdateThread;
@@ -68,13 +79,15 @@ public class World : MonoBehaviour
             _instance = this;
         }
         appPath = Application.persistentDataPath;
+
+        _player = player.GetComponent<Player>();
     }
 
     private void Start()
     {
         Debug.Log(VoxelData.seed);
 
-        worldData = SaveSystem.LoadWorld("New World");
+        worldData = SaveSystem.LoadWorld("Test World");
         string jsonImport = File.ReadAllText(Application.dataPath + "/settings.cfg");
         settings = JsonUtility.FromJson<Settings>(jsonImport);
 
@@ -82,16 +95,40 @@ public class World : MonoBehaviour
 
         Shader.SetGlobalFloat("minGlobalLightLevel", VoxelData.minLightLevel);
         Shader.SetGlobalFloat("maxGlobalLightLevel", VoxelData.maxLightLevel);
+       
+        LoadWorld();
 
+        SetGlobalLightValue();
+
+
+        spawnPosition = new Vector3(VoxelData.WorldCenter + 0.5f, VoxelData.ChunkHeight - 10, VoxelData.WorldCenter + 0.5f);
+        player.position = spawnPosition;
+        CheckViewDistance();
+
+        VoxelState temporaryVoxel = worldData.GetVoxel(new Vector3(VoxelData.WorldCenter, VoxelData.ChunkHeight - 10, VoxelData.WorldCenter));
+        if (temporaryVoxel != null)
+        {
+            VoxelState highestSolid = temporaryVoxel.chunkData.GetHighestSolidVoxel(temporaryVoxel.position.x, temporaryVoxel.position.z);
+            if (highestSolid != null)
+            {
+                spawnPosition.y = highestSolid.position.y + 1;
+                player.position = spawnPosition;
+            }
+        }
+        playerLastChunkCoord = GetChunkCoordFromVector3(player.position);
+        survivalInventoryMenu.SetActive(false);
+        chestInventoryMenu.SetActive(false);
+        furnanceInventoryMenu.SetActive(false);
+        armorInventoryMenu.SetActive(false);
+        handCraftInventoryMenu.SetActive(false);
+        craftInventoryMenu.SetActive(false);
         if (settings.enableThreading)
         {
             chunkUpdateThread = new Thread(new ThreadStart(ThreadedUpdate));
             chunkUpdateThread.Start();
         }
-        SetGlobalLightValue();
-        spawnPosition = new Vector3(VoxelData.WorldCenter, VoxelData.ChunkHeight - 10, VoxelData.WorldCenter);
-        GenerateWorld();
-        playerLastChunkCoord = GetChunkCoordFromVector3(player.position);
+
+        StartCoroutine(Tick());
     }
 
     public void SetGlobalLightValue()
@@ -116,14 +153,6 @@ public class World : MonoBehaviour
             ApplyModifications();
         }
 
-        if (chunksToCreate.Count > 0)
-        {
-            CreateChunk();
-        }
-        if (chunksToUpdate.Count > 0)
-        {
-            UpdateChunks();
-        }
         if (chunksToDraw.Count > 0)
         {
             chunksToDraw.Dequeue().CreateMesh();
@@ -164,28 +193,21 @@ public class World : MonoBehaviour
         }
     }
 
-    void GenerateWorld()
+    public void AddChunkToUpdate(Chunk chunk)
     {
-        for (int x = VoxelData.WorldSizeInChunks / 2 - settings.viewDistance; x < VoxelData.WorldSizeInChunks / 2 + settings.viewDistance; ++x)
-        {
-            for (int z = VoxelData.WorldSizeInChunks / 2 - settings.viewDistance; z < VoxelData.WorldSizeInChunks / 2 + settings.viewDistance; ++z)
-            {
-                ChunkCoord newChunk = new ChunkCoord(x, z);
-                chunks[x, z] = new Chunk(newChunk);
-                chunksToCreate.Add(newChunk);
-            }
-        }
-
-        player.position = spawnPosition;
-        CheckViewDistance();
+        AddChunkToUpdate(chunk, false);
     }
 
-    void CreateChunk()
+    public void AddChunkToUpdate(Chunk chunk, bool insert)
     {
-        ChunkCoord coord = chunksToCreate[0];
-        chunksToCreate.RemoveAt(0);
-
-        chunks[coord.x, coord.z].Init();
+        lock (chunkListThreadLock)
+        {
+            if (!chunksToUpdate.Contains(chunk))
+            {
+                if (insert) chunksToUpdate.Insert(0, chunk);
+                else chunksToUpdate.Add(chunk);
+            }
+        }
     }
 
     void UpdateChunks()
@@ -218,7 +240,7 @@ public class World : MonoBehaviour
             {
                 VoxelMod vMod = queue.Dequeue();
 
-                worldData.SetVoxel(vMod.position, vMod.id);
+                worldData.SetVoxel(vMod.position, vMod.id, 1);
 
             }
         }
@@ -266,15 +288,9 @@ public class World : MonoBehaviour
                     if (chunks[x, z] == null)
                     {
                         chunks[x, z] = new Chunk(thisChunkCoord);
-                        chunksToCreate.Add(thisChunkCoord);
                     } 
-                    else
-                    {
-                        if (!chunks[x, z].isActive)
-                        {
-                            chunks[x, z].isActive = true;
-                        }
-                    }
+                    chunks[x, z].isActive = true;
+                  
                     activeChunks.Add(thisChunkCoord);
 
                 }
@@ -317,13 +333,13 @@ public class World : MonoBehaviour
         int yPos = Mathf.FloorToInt(pos.y);
         /* IMMUTABLE PASS */
         if (!IsVoxelInWorld(pos))
-            return 0;
+            return (byte)VoxelBlockID.AIR_BLOCK;
         if (yPos == 0)
-            return 1;
+            return (byte)VoxelBlockID.BEDROCK;
 
         /* BIOME SELECTION PASS */
 
-        int solidGroundHeight = 64;
+        int solidGroundHeight = 55;
         float sumOfHeights = 0f;
         int count = 0;
         float strongestWeight = 0;
@@ -357,30 +373,37 @@ public class World : MonoBehaviour
 
         if (yPos == terrainHeight)
         {
-            voxelValue = biome.surfaceBlock;
+            voxelValue = (byte)biome.surfaceBlock;
         }
         else
         {
             if (yPos < terrainHeight && yPos > terrainHeight - 4)
             {
-                voxelValue = biome.subSurfaceBlock;
+                voxelValue = (byte)biome.subSurfaceBlock;
             }
             else
             {
                 if (yPos < terrainHeight)
                 {
-                    voxelValue = 2;
+                    voxelValue = (byte)VoxelBlockID.STONE_BLOCK;
                 }
                 else
                 {
-                    return 0;
+                    if (yPos < VoxelData.WorldWaterLevel)
+                    {
+                        return (byte)VoxelBlockID.WATER_BLOCK;
+                    }
+                    else
+                    {
+                        return (byte)VoxelBlockID.AIR_BLOCK;
+                    }
                 }
 
             }
         }
 
         /* LODE PASS */
-        if (voxelValue == 2)
+        if (voxelValue == (byte)VoxelBlockID.STONE_BLOCK)
         {
             foreach(Lode lode in biome.lodes)
             {
@@ -388,7 +411,7 @@ public class World : MonoBehaviour
                 {
                     if (Noise.Get3DPerlin(pos, lode.noiseOffset, lode.scale, lode.threshold))
                     {
-                        voxelValue = lode.blockID;
+                        voxelValue = (byte)lode.blockID;
                     }
                 }
             }
@@ -412,10 +435,24 @@ public class World : MonoBehaviour
 
     }
 
+    IEnumerator Tick()
+    {
+        while(true)
+        {
+            foreach (ChunkCoord c in activeChunks)
+            {
+                chunks[c.x, c.z].TickUpdate();
+            }
+
+
+            yield return new WaitForSeconds(VoxelData.TickLength);
+        }
+    }
+
     public bool CheckForVoxel(Vector3 pos)
     {
         VoxelState voxel = worldData.GetVoxel(pos);
-        if (blockTypes[voxel.id].isSolid) return true;
+        if (voxel != null && blockTypes[voxel.id].isSolid) return true;
         return false;
     }
 
@@ -424,6 +461,52 @@ public class World : MonoBehaviour
         return worldData.GetVoxel(pos);
     }
 
+    public void OpenContainer(VoxelState container)
+    {
+        inUI = true;
+
+        switch (blockTypes[container.id].itemID)
+        {
+            case ItemID.CHEST:
+                chestInventoryMenu.SetActive(true);
+                chestInventoryMenu.GetComponent<ContainerInventory>().PopulateContainerUI(container);
+                break;
+            case ItemID.FURNANCE:
+                furnanceInventoryMenu.SetActive(true);
+                furnanceInventoryMenu.GetComponent<ContainerInventory>().PopulateContainerUI(container);
+                break;
+            case ItemID.CRAFTING_TABLE:
+                craftInventoryMenu.SetActive(true);
+                craftInventoryMenu.transform.GetChild(0).GetComponent<ContainerInventory>().PopulateContainerUI(container);
+                craftInventoryMenu.transform.GetChild(2).GetComponent<ContainerInventory>().PopulateContainerUI(container, 1);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public bool mainUI
+    {
+        get { return _mainUI; }
+        set
+        {
+            _mainUI = value;
+            if (_mainUI)
+            {
+                GameMode gameMode = player.GetComponent<Player>().gameMode;
+                if (gameMode == GameMode.survival)
+                {
+                    armorInventoryMenu.SetActive(true);
+                    handCraftInventoryMenu.SetActive(true);
+                }
+            }
+            else
+            {
+                armorInventoryMenu.SetActive(false);
+                handCraftInventoryMenu.SetActive(false);
+            }
+        }
+    }
 
     public bool inUI
     {
@@ -435,14 +518,23 @@ public class World : MonoBehaviour
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
-                creativeInventoryMenu.SetActive(true);
+                GameMode gameMode = player.GetComponent<Player>().gameMode;
+                if (gameMode == GameMode.survival) survivalInventoryMenu.SetActive(true);
+                else creativeInventoryMenu.SetActive(true);
                 cursorSlot.SetActive(true);
             }
             else
             {
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
+                mainUI = false;
                 creativeInventoryMenu.SetActive(false);
+                survivalInventoryMenu.SetActive(false);
+                chestInventoryMenu.SetActive(false);
+                furnanceInventoryMenu.SetActive(false);
+                armorInventoryMenu.SetActive(false);
+                handCraftInventoryMenu.SetActive(false);
+                craftInventoryMenu.SetActive(false);
                 cursorSlot.SetActive(false);
             }
         }
@@ -465,6 +557,11 @@ public class World : MonoBehaviour
         }
     }
 
+    public void AddToModificationsList(Queue<VoxelMod> voxelMods)
+    {
+        modifications.Enqueue(voxelMods);
+    }
+
     private void OnDisable()
     {
         if (settings.enableThreading)
@@ -482,10 +579,23 @@ public class BlockType
 {
     public string blockName;
     public bool isSolid;
+    public bool isLiquid;
+    public bool isSpawnable;
+    public bool isContainer;
+    public VoxelMeshData meshData;
     public bool renderNeighbourFaces;
-    public float transparency;
+    public byte opacity;
     public Sprite icon;
     public int maxItemStack;
+    public bool isActive;
+    public ItemID itemID;
+    public ItemID dropItemID;
+    public ItemID[] extraDropItemsID;
+
+    public ToolType prefferedTool;
+    public ToolType minimumTool;
+    public ToolQuality minimumQuality;
+    public float breakingTime;
 
     [Header("Texture Values")]
     public int backFaceTexture;

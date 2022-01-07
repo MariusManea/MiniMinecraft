@@ -58,34 +58,100 @@ public class DragAndDropHandler : MonoBehaviour
 
         if (cursorSlot.HasItem && !clickedSlot.HasItem)
         {
+            if (clickedSlot.itemSlot.IsContainerLinked())
+            {
+                VoxelState container = clickedSlot.itemSlot.GetContainer();
+                if (container.properties.itemID == ItemID.FURNANCE)
+                {
+                    int index = clickedSlot.itemSlot.GetIndex();
+                    if (index == 0)
+                    {
+                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                    }
+                    if (index == 1)
+                    {
+                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                    }
+                    if (index == 2) return;
+                }
+                if (container.properties.itemID == ItemID.CRAFTING_TABLE)
+                {
+                    int index = clickedSlot.itemSlot.GetIndex();
+                    if (index == 0) return;
+                }
+            }
             clickedSlot.itemSlot.InsertStack(cursorSlot.itemSlot.TakeAll());
             return;
         }
 
         if (cursorSlot.HasItem && clickedSlot.HasItem)
         {
-            if (cursorSlot.itemSlot.stack.ID != clickedSlot.itemSlot.stack.ID)
+            bool normalBehaviour = true;
+            if (clickedSlot.itemSlot.IsContainerLinked())
             {
-                ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
-                ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+                VoxelState container = clickedSlot.itemSlot.GetContainer();
+                if (container.properties.itemID == ItemID.FURNANCE)
+                {
+                    int index = clickedSlot.itemSlot.GetIndex();
+                    if (index == 0)
+                    {
+                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                    }
+                    if (index == 1)
+                    {
+                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                    }
+                    if (index == 2) normalBehaviour = false;
+                }
+                if (container.properties.itemID == ItemID.CRAFTING_TABLE)
+                {
+                    int index = clickedSlot.itemSlot.GetIndex();
+                    if (index == 0) normalBehaviour = false;
+                }
+            }
+            if (normalBehaviour)
+            {
+                if (cursorSlot.itemSlot.stack.ID != clickedSlot.itemSlot.stack.ID)
+                {
+                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
 
-                clickedSlot.itemSlot.InsertStack(temporarySlot);
-                cursorSlot.itemSlot.InsertStack(temporaryClickedSlot);
+                    clickedSlot.itemSlot.InsertStack(temporarySlot);
+                    cursorSlot.itemSlot.InsertStack(temporaryClickedSlot);
+                }
+                else
+                {
+                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                    int maxItemStack = world.itemTypes[temporarySlot.ID].maxItemStack;
+                    int cursorAmount = Mathf.Max(0, temporarySlot.amount - (maxItemStack - temporaryClickedSlot.amount));
+                    int slotAmount = Mathf.Min(maxItemStack, temporaryClickedSlot.amount + temporarySlot.amount);
+
+                    if (cursorAmount > 0)
+                    {
+                        cursorSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, cursorAmount));
+                    }
+                    clickedSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, slotAmount));
+                }
             }
             else
             {
-                ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
-                ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
-
-                int maxItemStack = world.blockTypes[temporarySlot.ID].maxItemStack;
-                int cursorAmount = Mathf.Max(0, temporarySlot.amount - (maxItemStack - temporaryClickedSlot.amount));
-                int slotAmount = Mathf.Min(maxItemStack, temporaryClickedSlot.amount + temporarySlot.amount);
-
-                if (cursorAmount > 0)
+                if (cursorSlot.itemSlot.stack.ID == clickedSlot.itemSlot.stack.ID)
                 {
-                    cursorSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, cursorAmount));
+                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                    int maxItemStack = world.itemTypes[temporarySlot.ID].maxItemStack;
+                    int slotAmount = Mathf.Max(0, temporaryClickedSlot.amount - (maxItemStack - temporarySlot.amount));
+                    int cursorAmount = Mathf.Min(maxItemStack, temporarySlot.amount + temporaryClickedSlot.amount);
+
+                    if (slotAmount > 0)
+                    {
+                        clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, slotAmount));
+                    }
+                    cursorSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, cursorAmount));
                 }
-                clickedSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, slotAmount));
             }
             return;
         }
@@ -113,34 +179,97 @@ public class DragAndDropHandler : MonoBehaviour
 
         if (!clickedSlot.HasItem && cursorSlot.HasItem)
         {
+            if (clickedSlot.itemSlot.IsContainerLinked())
+            {
+                VoxelState container = clickedSlot.itemSlot.GetContainer();
+                if (container.properties.itemID == ItemID.FURNANCE)
+                {
+                    int index = clickedSlot.itemSlot.GetIndex();
+                    if (index == 0)
+                    {
+                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                    }
+                    if (index == 1)
+                    {
+                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                    }
+                    if (index == 2) return;
+                }
+                if (container.properties.itemID == ItemID.CRAFTING_TABLE)
+                {
+                    int index = clickedSlot.itemSlot.GetIndex();
+                    if (index == 0) return;
+                }
+            }
             ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
             clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, 1));
             if (temporarySlot.amount > 1)
             {
                 cursorSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, temporarySlot.amount - 1));
             }
+            return;
         }
 
         if (clickedSlot.HasItem && cursorSlot.HasItem)
         {
-            if (clickedSlot.itemSlot.stack.ID == cursorSlot.itemSlot.stack.ID)
+            bool normalBehaviour = true;
+            if (clickedSlot.itemSlot.IsContainerLinked())
             {
-                int maxItemStack = world.blockTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
-                if (clickedSlot.itemSlot.stack.amount < maxItemStack)
+                VoxelState container = clickedSlot.itemSlot.GetContainer();
+                if (container.properties.itemID == ItemID.FURNANCE)
                 {
-                    int oldAmount = clickedSlot.itemSlot.stack.amount;
-                    int newAmount = clickedSlot.itemSlot.Add(1);
-                    if (newAmount != oldAmount) cursorSlot.itemSlot.Take(1);
+                    int index = clickedSlot.itemSlot.GetIndex();
+                    if (index == 0)
+                    {
+                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                    }
+                    if (index == 1)
+                    {
+                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                    }
+                    if (index == 2) normalBehaviour = false;
                 }
-            } 
+                if (container.properties.itemID == ItemID.CRAFTING_TABLE)
+                {
+                    int index = clickedSlot.itemSlot.GetIndex();
+                    if (index == 0) normalBehaviour = false;
+                }
+            }
+            if (normalBehaviour)
+            {
+                if (clickedSlot.itemSlot.stack.ID == cursorSlot.itemSlot.stack.ID)
+                {
+                    int maxItemStack = world.itemTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
+                    if (clickedSlot.itemSlot.stack.amount < maxItemStack)
+                    {
+                        int oldAmount = clickedSlot.itemSlot.stack.amount;
+                        int newAmount = clickedSlot.itemSlot.Add(1);
+                        if (newAmount != oldAmount) cursorSlot.itemSlot.Take(1);
+                    }
+                }
+                else
+                {
+                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                    clickedSlot.itemSlot.InsertStack(temporarySlot);
+                    cursorSlot.itemSlot.InsertStack(temporaryClickedSlot);
+                }
+            }
             else
             {
-                ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
-                ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
-
-                clickedSlot.itemSlot.InsertStack(temporarySlot);
-                cursorSlot.itemSlot.InsertStack(temporaryClickedSlot);
+                if (clickedSlot.itemSlot.stack.ID == cursorSlot.itemSlot.stack.ID)
+                {
+                    int maxItemStack = world.itemTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
+                    if (cursorSlot.itemSlot.stack.amount < maxItemStack)
+                    {
+                        int oldAmount = clickedSlot.itemSlot.stack.amount;
+                        int newAmount = cursorSlot.itemSlot.Add(1);
+                        if (newAmount != oldAmount) clickedSlot.itemSlot.Take(1);
+                    }
+                }
             }
+            return;
         }
     }
 

@@ -13,12 +13,12 @@ public class CreativeInventory : MonoBehaviour
     {
         world = FindObjectOfType<World>();
 
-        for (int i = 1; i < world.blockTypes.Length; ++i)
+        for (int i = 0; i < world.itemTypes.Length; ++i)
         {
             GameObject newSlot = Instantiate(slotPrefab, transform);
-            ItemStack stack = new ItemStack((byte)i, 64);
+            ItemStack stack = new ItemStack((byte)i, world.itemTypes[i].maxItemStack);
             slots.Add(new ItemSlot(newSlot.GetComponent<UIItemSlot>(), stack));
-            slots[i - 1].isCreative = true;
+            slots[i].isCreative = true;
         }
     }
 }

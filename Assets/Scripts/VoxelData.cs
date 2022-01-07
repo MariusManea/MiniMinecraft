@@ -7,11 +7,28 @@ public static class VoxelData
     public static readonly int ChunkWidth = 16;
     public static readonly int ChunkHeight = 128;
     public static readonly int WorldSizeInChunks = 100;
+    public static readonly int WorldWaterLevel = 63;
+    public static readonly float GetExtraDropChance = 0.3f;
+
+    // Tick Updates Values
+    public static readonly float TickLength = 0.1f;
+    public static readonly float GrassSpreadSpeed = 0.0075f;
+    public static readonly float SaplingGrowthChance = 0.001f;
+    public static readonly int LogMaxDistance = 5;
+    public static readonly float LeavesDecaySpeed = 0.009f;
 
     // Lighting Values
-    public static float minLightLevel = 0.1f;
-    public static float maxLightLevel = 0.8f;
-    public static float lightFalloff = 0.08f;
+    public static readonly float minLightLevel = 0.005f;
+    public static readonly float maxLightLevel = 0.9f;
+
+    // Flora Growth Limits
+    public static readonly int OakMaxHeight = 7;
+
+
+    public static float unitOfLight
+    {
+        get { return 0.0625f; } // 1 / 16 (Level of light)
+    }
 
     public static int seed;
 
@@ -51,6 +68,16 @@ public static class VoxelData
         new Vector3Int(0, -1, 0),
         new Vector3Int(-1, 0, 0),
         new Vector3Int(1, 0, 0),
+    };
+
+    public static readonly int[] revFaceCheckIndex = new int[6] { 1, 0, 3, 2, 5, 4 };
+
+    public static readonly Dictionary<int, Dictionary<int, int>> orientedFaceChecks = new Dictionary<int, Dictionary<int, int>>()
+    {
+        {1, new Dictionary<int, int>(){ {0, 0 }, {1, 1 }, { 2, 2 }, { 3, 3 }, {4, 4 }, {5, 5 } } },
+        {5, new Dictionary<int, int>(){ {0, 5 }, {1, 4 }, { 2, 2 }, { 3, 3 }, { 4, 0 }, {5, 1 } } },
+        {0, new Dictionary<int, int>(){ {0, 1 }, {1, 0 }, { 2, 2 }, { 3, 3 }, { 4, 5 }, {5, 4 } } },
+        {4, new Dictionary<int, int>(){ {0, 4 }, {1, 5 }, { 2, 2 }, { 3, 3 }, { 4, 1 }, {5, 0 } } },
     };
 
     public static readonly int[,] voxelTriangles = new int[6, 4]

@@ -26,9 +26,9 @@ Shader "Minecraft/Blocks/Standard Blocks" {
 						float4 color : COLOR;
 					};
 					sampler2D _MainTex;
-					float GlobalLightLevel;
 					float minGlobalLightLevel;
 					float maxGlobalLightLevel;
+					float GlobalLightLevel;
 				
 					v2f vertFunc(appdata v) {
 						v2f OUT;
@@ -45,9 +45,8 @@ Shader "Minecraft/Blocks/Standard Blocks" {
 						float shade = (maxGlobalLightLevel - minGlobalLightLevel) * GlobalLightLevel + minGlobalLightLevel;
 						shade *= IN.color.a;
 						shade = clamp(1 - shade, minGlobalLightLevel, maxGlobalLightLevel);
-						float localLightLevel = clamp(GlobalLightLevel + IN.color.a, 0, 1);
-						//clip(col.a - 1);
 
+						//clip(col.a - 1);
 						col = lerp(col, float4(0, 0, 0, 1), shade);
 
 						return col;

@@ -27,7 +27,7 @@ public static class Structure
 
         for (int i = 1; i < height; ++i)
         {
-            queue.Enqueue(new VoxelMod(new Vector3(0, i, 0) + position, 7));
+            queue.Enqueue(new VoxelMod(new Vector3(0, i, 0) + position, (byte)VoxelBlockID.OAK_LOG));
         }
 
         for (int y = 0; y < 7; ++y)
@@ -38,7 +38,9 @@ public static class Structure
                 for (int z = -3 + cutValue; z < 4 - cutValue; ++z)
                 {
                     if (y < 2 && x == 0 && z == 0) continue;
-                    queue.Enqueue(new VoxelMod(new Vector3(x, height + y - 2, z) + position, 11));
+                    VoxelState replacedVoxel = World.Instance.GetVoxelState(new Vector3(x, height + y - 2, z));
+                    if (replacedVoxel != null && replacedVoxel.id != (byte)VoxelBlockID.AIR_BLOCK) continue;
+                    queue.Enqueue(new VoxelMod(new Vector3(x, height + y - 2, z) + position, (byte)VoxelBlockID.OAK_LEAVES));
                 }   
             }
         }
@@ -56,7 +58,7 @@ public static class Structure
 
         for (int i = 1; i <= height; ++i)
         {
-            queue.Enqueue(new VoxelMod(new Vector3(0, i, 0) + position, 12));
+            queue.Enqueue(new VoxelMod(new Vector3(0, i, 0) + position, (byte)VoxelBlockID.CACTUS_BLOCK));
         }
 
         return queue;
