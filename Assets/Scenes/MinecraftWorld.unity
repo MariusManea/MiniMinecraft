@@ -1778,6 +1778,18 @@ MonoBehaviour:
   - {fileID: 356006603842816827, guid: c27c1deb5bb52144e9d9cbbf5c4ccc0a, type: 3}
   recipes:
   - {fileID: 11400000, guid: 760ad4b941c13c24ca239a791ff47da4, type: 2}
+  - {fileID: 11400000, guid: 3dbb509e9395303438d84f380320b811, type: 2}
+  - {fileID: 11400000, guid: 9543bd6cf962d0b4b8d48b8012185a4f, type: 2}
+  - {fileID: 11400000, guid: d780fe4686ea718488c603dd4884c74e, type: 2}
+  - {fileID: 11400000, guid: 1ed60fa98e1b1e347a319f380143d20d, type: 2}
+  - {fileID: 11400000, guid: 5d90ffd53a03cf64195acc6e4840fb93, type: 2}
+  - {fileID: 11400000, guid: 91510b4830a2f724d83db19f627fe2c3, type: 2}
+  - {fileID: 11400000, guid: 43d16496c3db2ac48accc4f14115ff6b, type: 2}
+  - {fileID: 11400000, guid: 699d82d92110c5047937b378f1a0455d, type: 2}
+  - {fileID: 11400000, guid: 4a72419bf19dc5047923ae485e40f934, type: 2}
+  - {fileID: 11400000, guid: f0764460b63f3a544a12e5b470eb6036, type: 2}
+  - {fileID: 11400000, guid: 7c7b88dc361930149826df2d1741148c, type: 2}
+  - {fileID: 11400000, guid: e157549492d01944ea3620320d7ec79d, type: 2}
   - {fileID: 11400000, guid: f7ed02a90f0f17141861b246b73bce71, type: 2}
   clouds: {fileID: 564449497}
   overworldMobs:

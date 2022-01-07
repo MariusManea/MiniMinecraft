@@ -98,89 +98,112 @@ public class DragAndDropHandler : MonoBehaviour
 
         if (cursorSlot.HasItem && clickedSlot.HasItem)
         {
-            bool normalBehaviour = true;
-            int oldAmound = cursorSlot.itemSlot.stack.amount;
-            if (clickedSlot.lockPlace) normalBehaviour = false;
-            else
-            {
-                if (clickedSlot.itemSlot.IsContainerLinked())
-                {
-                    VoxelState container = clickedSlot.itemSlot.GetContainer();
-                    if (container.properties.itemID == ItemID.FURNANCE)
-                    {
-                        int index = clickedSlot.itemSlot.GetIndex();
-                        if (index == 0)
-                        {
-                            if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
-                        }
-                        if (index == 1)
-                        {
-                            if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
-                        }
-                        if (index == 2) normalBehaviour = false;
-                    }
-                    if (container.properties.itemID == ItemID.CRAFTING_TABLE)
-                    {
-                        int index = clickedSlot.itemSlot.GetIndex();
-                        if (index == 0) normalBehaviour = false;
-                    }
-                }
-            }
-            if (normalBehaviour)
-            {
-                if (cursorSlot.itemSlot.stack.ID != clickedSlot.itemSlot.stack.ID)
-                {
-                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
-                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
-
-                    clickedSlot.itemSlot.InsertStack(temporarySlot);
-                    cursorSlot.itemSlot.InsertStack(temporaryClickedSlot);
-                }
-                else
-                {
-                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
-                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
-
-                    int maxItemStack = world.itemTypes[temporarySlot.ID].maxItemStack;
-                    int cursorAmount = Mathf.Max(0, temporarySlot.amount - (maxItemStack - temporaryClickedSlot.amount));
-                    int slotAmount = Mathf.Min(maxItemStack, temporaryClickedSlot.amount + temporarySlot.amount);
-
-                    if (cursorAmount > 0)
-                    {
-                        cursorSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, cursorAmount));
-                    }
-                    clickedSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, slotAmount));
-                }
-            }
-            else
+            if (clickedSlot.itemSlot.isCraftResult)
             {
                 if (cursorSlot.itemSlot.stack.ID == clickedSlot.itemSlot.stack.ID)
                 {
-                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
-                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+                    int maxItemStack = world.itemTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
 
-                    int maxItemStack = world.itemTypes[temporarySlot.ID].maxItemStack;
-                    int slotAmount = Mathf.Max(0, temporaryClickedSlot.amount - (maxItemStack - temporarySlot.amount));
-                    int cursorAmount = Mathf.Min(maxItemStack, temporarySlot.amount + temporaryClickedSlot.amount);
-
-                    if (slotAmount > 0)
+                    if (cursorSlot.itemSlot.stack.amount + clickedSlot.itemSlot.stack.amount <= maxItemStack)
                     {
-                        clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, slotAmount));
+                        int oldAmount = cursorSlot.itemSlot.stack.amount;
+                        ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                        ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                        int slotAmount = Mathf.Max(0, temporaryClickedSlot.amount - (maxItemStack - temporarySlot.amount));
+                        int cursorAmount = Mathf.Min(maxItemStack, temporarySlot.amount + temporaryClickedSlot.amount);
+
+                        if (slotAmount > 0)
+                        {
+                            clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, slotAmount));
+                        }
+                        cursorSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, cursorAmount));
+
+                        if (cursorAmount != oldAmount)
+                        {
+                            if (World.Instance.handCraftInventoryMenu.activeSelf)
+                            {
+                                World.Instance.handCraftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                            }
+                            if (World.Instance.craftInventoryMenu.activeSelf)
+                            {
+                                World.Instance.craftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                            }
+                        }
                     }
-                    cursorSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, cursorAmount));
                 }
             }
-            if (clickedSlot.itemSlot.isCraftResult)
+            else
             {
-                if (oldAmound != cursorSlot.itemSlot.stack.amount)
+                bool normalBehaviour = true;
+                if (clickedSlot.lockPlace) normalBehaviour = false;
+                else
                 {
-                    if (World.Instance.handCraftInventoryMenu.activeSelf)
+                    if (clickedSlot.itemSlot.IsContainerLinked())
                     {
-                        World.Instance.handCraftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                        VoxelState container = clickedSlot.itemSlot.GetContainer();
+                        if (container.properties.itemID == ItemID.FURNANCE)
+                        {
+                            int index = clickedSlot.itemSlot.GetIndex();
+                            if (index == 0)
+                            {
+                                if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                            }
+                            if (index == 1)
+                            {
+                                if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                            }
+                            if (index == 2) normalBehaviour = false;
+                        }
+                        if (container.properties.itemID == ItemID.CRAFTING_TABLE)
+                        {
+                            int index = clickedSlot.itemSlot.GetIndex();
+                            if (index == 0) normalBehaviour = false;
+                        }
                     }
-                    if (World.Instance.craftInventoryMenu.activeSelf)
+                }
+                if (normalBehaviour)
+                {
+                    if (cursorSlot.itemSlot.stack.ID != clickedSlot.itemSlot.stack.ID)
                     {
-                        World.Instance.craftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                        ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                        ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                        clickedSlot.itemSlot.InsertStack(temporarySlot);
+                        cursorSlot.itemSlot.InsertStack(temporaryClickedSlot);
+                    }
+                    else
+                    {
+                        ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                        ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                        int maxItemStack = world.itemTypes[temporarySlot.ID].maxItemStack;
+                        int cursorAmount = Mathf.Max(0, temporarySlot.amount - (maxItemStack - temporaryClickedSlot.amount));
+                        int slotAmount = Mathf.Min(maxItemStack, temporaryClickedSlot.amount + temporarySlot.amount);
+
+                        if (cursorAmount > 0)
+                        {
+                            cursorSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, cursorAmount));
+                        }
+                        clickedSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, slotAmount));
+                    }
+                }
+                else
+                {
+                    if (cursorSlot.itemSlot.stack.ID == clickedSlot.itemSlot.stack.ID)
+                    {
+                        ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                        ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                        int maxItemStack = world.itemTypes[temporarySlot.ID].maxItemStack;
+                        int slotAmount = Mathf.Max(0, temporaryClickedSlot.amount - (maxItemStack - temporarySlot.amount));
+                        int cursorAmount = Mathf.Min(maxItemStack, temporarySlot.amount + temporaryClickedSlot.amount);
+
+                        if (slotAmount > 0)
+                        {
+                            clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, slotAmount));
+                        }
+                        cursorSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, cursorAmount));
                     }
                 }
             }
@@ -264,32 +287,35 @@ public class DragAndDropHandler : MonoBehaviour
             {
                 if (cursorSlot.itemSlot.stack.ID == clickedSlot.itemSlot.stack.ID)
                 {
-                    int oldAmount = cursorSlot.itemSlot.stack.amount;
-                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
-                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+                    int maxItemStack = world.itemTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
 
-                    int maxItemStack = world.itemTypes[temporarySlot.ID].maxItemStack;
-                    int slotAmount = Mathf.Max(0, temporaryClickedSlot.amount - (maxItemStack - temporarySlot.amount));
-                    int cursorAmount = Mathf.Min(maxItemStack, temporarySlot.amount + temporaryClickedSlot.amount);
-
-                    if (slotAmount > 0)
+                    if (cursorSlot.itemSlot.stack.amount + clickedSlot.itemSlot.stack.amount <= maxItemStack)
                     {
-                        clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, slotAmount));
-                    }
-                    cursorSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, cursorAmount));
+                        int oldAmount = cursorSlot.itemSlot.stack.amount;
+                        ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                        ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
 
-                    if (cursorAmount != oldAmount)
-                    {
-                        if (World.Instance.handCraftInventoryMenu.activeSelf)
+                        int slotAmount = Mathf.Max(0, temporaryClickedSlot.amount - (maxItemStack - temporarySlot.amount));
+                        int cursorAmount = Mathf.Min(maxItemStack, temporarySlot.amount + temporaryClickedSlot.amount);
+
+                        if (slotAmount > 0)
                         {
-                            World.Instance.handCraftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                            clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, slotAmount));
                         }
-                        if (World.Instance.craftInventoryMenu.activeSelf)
+                        cursorSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, cursorAmount));
+
+                        if (cursorAmount != oldAmount)
                         {
-                            World.Instance.craftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                            if (World.Instance.handCraftInventoryMenu.activeSelf)
+                            {
+                                World.Instance.handCraftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                            }
+                            if (World.Instance.craftInventoryMenu.activeSelf)
+                            {
+                                World.Instance.craftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                            }
                         }
                     }
-
                 }
             } 
             else
