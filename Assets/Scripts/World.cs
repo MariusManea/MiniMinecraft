@@ -430,10 +430,6 @@ public class World : MonoBehaviour
             }
         }
 
-        if (voxelValue == (byte)VoxelBlockID.COAL_ORE_BLOCK || voxelValue == (byte)VoxelBlockID.DIAMOND_ORE_BLOCK || voxelValue == (byte)VoxelBlockID.IRON_ORE_BLOCK)
-            return voxelValue;
-        return (byte)VoxelBlockID.AIR_BLOCK;
-
         return voxelValue;
 
     }

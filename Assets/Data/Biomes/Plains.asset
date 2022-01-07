@@ -49,3 +49,24 @@ MonoBehaviour:
     scale: 0.1
     threshold: 0.55
     noiseOffset: 34422
+  - nodeName: CoalVeins
+    blockID: 28
+    minHeight: 2
+    maxHeight: 255
+    scale: 0.3
+    threshold: 0.62
+    noiseOffset: 14745
+  - nodeName: IronVeins
+    blockID: 29
+    minHeight: 1
+    maxHeight: 128
+    scale: 0.3
+    threshold: 0.64
+    noiseOffset: 8745
+  - nodeName: DiamondVeins
+    blockID: 30
+    minHeight: 1
+    maxHeight: 16
+    scale: 0.3
+    threshold: 0.66
+    noiseOffset: 54775
