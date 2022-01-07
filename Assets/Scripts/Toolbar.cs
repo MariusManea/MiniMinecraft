@@ -17,11 +17,11 @@ public class Toolbar : MonoBehaviour
             ItemSlot emptySlot = new ItemSlot(s);
         }
         new ItemSlot(uiItemSlots[0], new ItemStack((byte)ItemID.CHEST, 64));
-        new ItemSlot(uiItemSlots[1], new ItemStack((byte)ItemID.OAK_SAPLING, 64));
+        new ItemSlot(uiItemSlots[1], new ItemStack((byte)ItemID.OAK_LOG, 64));
         new ItemSlot(uiItemSlots[2], new ItemStack((byte)ItemID.CRAFTING_TABLE, 64));
         new ItemSlot(uiItemSlots[3], new ItemStack((byte)ItemID.DIAMOND_PICKAXE, 1));
         new ItemSlot(uiItemSlots[4], new ItemStack((byte)ItemID.FURNANCE, 64));
-        new ItemSlot(uiItemSlots[5], new ItemStack((byte)ItemID.STONE_AXE, 1));
+        new ItemSlot(uiItemSlots[5], new ItemStack((byte)ItemID.OAK_PLANKS, 64));
         new ItemSlot(uiItemSlots[6], new ItemStack((byte)ItemID.IRON_AXE, 1));
         new ItemSlot(uiItemSlots[7], new ItemStack((byte)ItemID.DIAMOND_AXE, 1));
         new ItemSlot(uiItemSlots[8], new ItemStack((byte)ItemID.COBBLESTONE_BLOCK, 64));

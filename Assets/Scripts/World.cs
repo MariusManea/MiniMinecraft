@@ -25,6 +25,7 @@ public class World : MonoBehaviour
     public Material liquidMaterial;
     public BlockType[] blockTypes;
     public Item[] itemTypes;
+    public RecipeData[] recipes;
     public Clouds clouds;
 
     public GameObject[] overworldMobs;

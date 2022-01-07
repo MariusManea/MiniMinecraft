@@ -305,7 +305,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -145}
+  m_AnchoredPosition: {x: 0, y: 48}
   m_SizeDelta: {x: 216, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &40228836
@@ -469,6 +469,12 @@ MonoBehaviour:
   fuelImage: {fileID: 0}
   smeltImage: {fileID: 0}
   siblingSetting: 
+  permanentContainer: 1
+  dropOnClose: 0
+  offset: 0
+  lockPlace: 1
+  isCraftZone: 0
+  isCraftResult: 1
 --- !u!114 &79362077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1770,6 +1776,9 @@ MonoBehaviour:
   - {fileID: 356006603842816827, guid: d094f8d86339c5749864e229241ce5f9, type: 3}
   - {fileID: 356006603842816827, guid: 639403598c902d942858ed69c7191fd5, type: 3}
   - {fileID: 356006603842816827, guid: c27c1deb5bb52144e9d9cbbf5c4ccc0a, type: 3}
+  recipes:
+  - {fileID: 11400000, guid: 760ad4b941c13c24ca239a791ff47da4, type: 2}
+  - {fileID: 11400000, guid: f7ed02a90f0f17141861b246b73bce71, type: 2}
   clouds: {fileID: 564449497}
   overworldMobs:
   - {fileID: 5766446086946519440, guid: 3f32d1b7051ddeb408a9eb297b5ac3a4, type: 3}
@@ -2813,7 +2822,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4817104551127837971, guid: d414c67926971544797955a3a4769fee, type: 3}
       propertyPath: m_RootOrder
-      value: 14
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 4817104551127837971, guid: d414c67926971544797955a3a4769fee, type: 3}
       propertyPath: m_AnchorMax.x
@@ -3102,7 +3111,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 125, y: 151.20003}
+  m_AnchoredPosition: {x: 125, y: 150}
   m_SizeDelta: {x: 216, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &723108502
@@ -3122,6 +3131,12 @@ MonoBehaviour:
   fuelImage: {fileID: 0}
   smeltImage: {fileID: 0}
   siblingSetting: 
+  permanentContainer: 1
+  dropOnClose: 0
+  offset: 0
+  lockPlace: 0
+  isCraftZone: 0
+  isCraftResult: 0
 --- !u!114 &723108503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3596,6 +3611,12 @@ MonoBehaviour:
   fuelImage: {fileID: 1358079392}
   smeltImage: {fileID: 771616818}
   siblingSetting: EVEN
+  permanentContainer: 0
+  dropOnClose: 0
+  offset: 0
+  lockPlace: 0
+  isCraftZone: 0
+  isCraftResult: 0
 --- !u!114 &846144291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3762,7 +3783,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 100, y: 151.20003}
+  m_AnchoredPosition: {x: 100, y: 150}
   m_SizeDelta: {x: 216, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &849582647
@@ -4094,6 +4115,12 @@ MonoBehaviour:
   fuelImage: {fileID: 0}
   smeltImage: {fileID: 0}
   siblingSetting: 
+  permanentContainer: 0
+  dropOnClose: 0
+  offset: 0
+  lockPlace: 0
+  isCraftZone: 0
+  isCraftResult: 0
 --- !u!114 &919997640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4286,6 +4313,12 @@ MonoBehaviour:
   fuelImage: {fileID: 0}
   smeltImage: {fileID: 0}
   siblingSetting: 
+  permanentContainer: 0
+  dropOnClose: 0
+  offset: 0
+  lockPlace: 0
+  isCraftZone: 0
+  isCraftResult: 1
 --- !u!114 &946580251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5136,7 +5169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4433962, g: 0.4203898, b: 0.4203898, a: 0.7019608}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.7019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5532,6 +5565,7 @@ GameObject:
   - component: {fileID: 1516214705}
   - component: {fileID: 1516214704}
   - component: {fileID: 1516214703}
+  - component: {fileID: 1516214706}
   m_Layer: 5
   m_Name: CraftZone
   m_TagString: Untagged
@@ -5575,6 +5609,12 @@ MonoBehaviour:
   fuelImage: {fileID: 0}
   smeltImage: {fileID: 0}
   siblingSetting: 
+  permanentContainer: 1
+  dropOnClose: 0
+  offset: 0
+  lockPlace: 0
+  isCraftZone: 1
+  isCraftResult: 0
 --- !u!114 &1516214704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5607,6 +5647,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1516214701}
   m_CullTransparentMesh: 1
+--- !u!114 &1516214706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516214701}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ea6984d829d2d4499a0e6947a0a3957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rows: 2
+  columns: 2
+  requestCheckRecipe: 0
+  availableRecipes: []
+  slots: []
+  resultSlot: {fileID: 0}
 --- !u!224 &1516596482 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4817104551127837971, guid: d414c67926971544797955a3a4769fee, type: 3}
@@ -6398,7 +6456,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -49.699997}
+  m_AnchoredPosition: {x: 0, y: -50}
   m_SizeDelta: {x: 216, y: 72}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1852841615
@@ -6647,7 +6705,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4433962, g: 0.4203898, b: 0.4203898, a: 0.7019608}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.7019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6932,6 +6990,7 @@ GameObject:
   - component: {fileID: 1975746414}
   - component: {fileID: 1975746412}
   - component: {fileID: 1975746411}
+  - component: {fileID: 1975746413}
   m_Layer: 5
   m_Name: CraftZone
   m_TagString: Untagged
@@ -6975,6 +7034,12 @@ MonoBehaviour:
   fuelImage: {fileID: 0}
   smeltImage: {fileID: 0}
   siblingSetting: 
+  permanentContainer: 0
+  dropOnClose: 1
+  offset: 1
+  lockPlace: 0
+  isCraftZone: 1
+  isCraftResult: 0
 --- !u!114 &1975746412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6999,6 +7064,24 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 3
+--- !u!114 &1975746413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1975746409}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ea6984d829d2d4499a0e6947a0a3957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rows: 3
+  columns: 3
+  requestCheckRecipe: 0
+  availableRecipes: []
+  slots: []
+  resultSlot: {fileID: 0}
 --- !u!222 &1975746414
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -7269,7 +7352,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 151.20003}
+  m_AnchoredPosition: {x: -45, y: 150}
   m_SizeDelta: {x: 216, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2032752652

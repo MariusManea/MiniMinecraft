@@ -14,6 +14,8 @@ public class UIItemSlot : MonoBehaviour
 
     public World world;
 
+    public bool lockPlace;
+
     private void Awake()
     {
         world = FindObjectOfType<World>();
@@ -65,6 +67,22 @@ public class UIItemSlot : MonoBehaviour
         {
             Clear();
         }
+        if (itemSlot.isCraftSlot)
+        {
+            RecipeCrafter recipeCrafter = GetComponentInParent<RecipeCrafter>();
+            if (recipeCrafter)
+            {
+                recipeCrafter.requestCheckRecipe = true;
+            }
+        }
+        if (itemSlot.isCraftResult)
+        {
+            RecipeCrafter recipeCrafter = transform.parent.parent.GetComponentInChildren<RecipeCrafter>();
+            if (recipeCrafter)
+            {
+                recipeCrafter.requestCheckRecipe = true;
+            }
+        }
     }
 
    
@@ -93,6 +111,8 @@ public class ItemSlot
     public ItemStack stack = null;
     private UIItemSlot uiItemSlot = null;
     public bool isCreative;
+    public bool isCraftSlot;
+    public bool isCraftResult;
 
     private VoxelState container;
     private int index;
@@ -221,6 +241,7 @@ public class ItemSlot
     public void InsertStackAndLinkToContainer(ItemStack _stack, VoxelState _container, int _index)
     {
         if (_stack != null && _stack.amount > 0) InsertStack(_stack);
+        else EmptySlot();
         container = _container;
         index = _index;
     }

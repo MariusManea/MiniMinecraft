@@ -21,6 +21,9 @@ public class ContainerInventory : MonoBehaviour
     public bool permanentContainer;
     public bool dropOnClose;
     public int offset;
+    public bool lockPlace;
+    public bool isCraftZone;
+    public bool isCraftResult;
 
     private void Start()
     {
@@ -29,8 +32,20 @@ public class ContainerInventory : MonoBehaviour
         for (int i = 0; i < inventorySize; ++i)
         {
             GameObject newSlot = Instantiate(slotPrefab, transform);
+            if (lockPlace)
+            {
+                newSlot.GetComponent<UIItemSlot>().lockPlace = lockPlace;
+            }
             slots.Add(new ItemSlot(newSlot.GetComponent<UIItemSlot>()));
             slots[i].isCreative = false;
+            if (isCraftZone)
+            {
+                slots[i].isCraftSlot = true;
+            }
+            if (isCraftResult)
+            {
+                slots[i].isCraftResult = true;
+            }
 
             switch (siblingSetting)
             {
@@ -47,6 +62,11 @@ public class ContainerInventory : MonoBehaviour
 
             if (fuelImage != null) fuelImage.fillAmount = 0;
             if (smeltImage != null) smeltImage.fillAmount = 0;
+        }
+
+        if (GetComponent<RecipeCrafter>())
+        {
+            GetComponent<RecipeCrafter>().enabled = true;
         }
     }
 

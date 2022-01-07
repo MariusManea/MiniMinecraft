@@ -53,11 +53,23 @@ public class DragAndDropHandler : MonoBehaviour
         if (!cursorSlot.HasItem && clickedSlot.HasItem)
         {
             cursorItemSlot.InsertStack(clickedSlot.itemSlot.TakeAll());
+            if (clickedSlot.itemSlot.isCraftResult)
+            {
+                if (World.Instance.handCraftInventoryMenu.activeSelf)
+                {
+                    World.Instance.handCraftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                }
+                if (World.Instance.craftInventoryMenu.activeSelf)
+                {
+                    World.Instance.craftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                }
+            }
             return;
         }
 
         if (cursorSlot.HasItem && !clickedSlot.HasItem)
         {
+            if (clickedSlot.lockPlace) return;
             if (clickedSlot.itemSlot.IsContainerLinked())
             {
                 VoxelState container = clickedSlot.itemSlot.GetContainer();
@@ -87,26 +99,31 @@ public class DragAndDropHandler : MonoBehaviour
         if (cursorSlot.HasItem && clickedSlot.HasItem)
         {
             bool normalBehaviour = true;
-            if (clickedSlot.itemSlot.IsContainerLinked())
+            int oldAmound = cursorSlot.itemSlot.stack.amount;
+            if (clickedSlot.lockPlace) normalBehaviour = false;
+            else
             {
-                VoxelState container = clickedSlot.itemSlot.GetContainer();
-                if (container.properties.itemID == ItemID.FURNANCE)
+                if (clickedSlot.itemSlot.IsContainerLinked())
                 {
-                    int index = clickedSlot.itemSlot.GetIndex();
-                    if (index == 0)
+                    VoxelState container = clickedSlot.itemSlot.GetContainer();
+                    if (container.properties.itemID == ItemID.FURNANCE)
                     {
-                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                        int index = clickedSlot.itemSlot.GetIndex();
+                        if (index == 0)
+                        {
+                            if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                        }
+                        if (index == 1)
+                        {
+                            if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                        }
+                        if (index == 2) normalBehaviour = false;
                     }
-                    if (index == 1)
+                    if (container.properties.itemID == ItemID.CRAFTING_TABLE)
                     {
-                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                        int index = clickedSlot.itemSlot.GetIndex();
+                        if (index == 0) normalBehaviour = false;
                     }
-                    if (index == 2) normalBehaviour = false;
-                }
-                if (container.properties.itemID == ItemID.CRAFTING_TABLE)
-                {
-                    int index = clickedSlot.itemSlot.GetIndex();
-                    if (index == 0) normalBehaviour = false;
                 }
             }
             if (normalBehaviour)
@@ -153,6 +170,20 @@ public class DragAndDropHandler : MonoBehaviour
                     cursorSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, cursorAmount));
                 }
             }
+            if (clickedSlot.itemSlot.isCraftResult)
+            {
+                if (oldAmound != cursorSlot.itemSlot.stack.amount)
+                {
+                    if (World.Instance.handCraftInventoryMenu.activeSelf)
+                    {
+                        World.Instance.handCraftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                    }
+                    if (World.Instance.craftInventoryMenu.activeSelf)
+                    {
+                        World.Instance.craftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                    }
+                }
+            }
             return;
         }
     }
@@ -171,14 +202,31 @@ public class DragAndDropHandler : MonoBehaviour
 
         if (clickedSlot.HasItem && !cursorSlot.HasItem)
         {
-            ItemStack temporarySlot = clickedSlot.itemSlot.TakeAll();
-            cursorSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, temporarySlot.amount / 2));
-            clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, temporarySlot.amount / 2 + (temporarySlot.amount % 2 == 0 ? 0 : 1)));
+            if (clickedSlot.itemSlot.isCraftResult)
+            {
+                cursorItemSlot.InsertStack(clickedSlot.itemSlot.TakeAll());
+
+                if (World.Instance.handCraftInventoryMenu.activeSelf)
+                {
+                    World.Instance.handCraftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                }
+                if (World.Instance.craftInventoryMenu.activeSelf)
+                {
+                    World.Instance.craftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                }
+            }
+            else
+            {
+                ItemStack temporarySlot = clickedSlot.itemSlot.TakeAll();
+                cursorSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, temporarySlot.amount / 2));
+                clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, temporarySlot.amount / 2 + (temporarySlot.amount % 2 == 0 ? 0 : 1)));
+            }
             return;
         }
 
         if (!clickedSlot.HasItem && cursorSlot.HasItem)
         {
+            if (clickedSlot.lockPlace) return;
             if (clickedSlot.itemSlot.IsContainerLinked())
             {
                 VoxelState container = clickedSlot.itemSlot.GetContainer();
@@ -212,60 +260,99 @@ public class DragAndDropHandler : MonoBehaviour
 
         if (clickedSlot.HasItem && cursorSlot.HasItem)
         {
-            bool normalBehaviour = true;
-            if (clickedSlot.itemSlot.IsContainerLinked())
+            if (clickedSlot.itemSlot.isCraftResult)
             {
-                VoxelState container = clickedSlot.itemSlot.GetContainer();
-                if (container.properties.itemID == ItemID.FURNANCE)
+                if (cursorSlot.itemSlot.stack.ID == clickedSlot.itemSlot.stack.ID)
                 {
-                    int index = clickedSlot.itemSlot.GetIndex();
-                    if (index == 0)
+                    int oldAmount = cursorSlot.itemSlot.stack.amount;
+                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                    int maxItemStack = world.itemTypes[temporarySlot.ID].maxItemStack;
+                    int slotAmount = Mathf.Max(0, temporaryClickedSlot.amount - (maxItemStack - temporarySlot.amount));
+                    int cursorAmount = Mathf.Min(maxItemStack, temporarySlot.amount + temporaryClickedSlot.amount);
+
+                    if (slotAmount > 0)
                     {
-                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                        clickedSlot.itemSlot.InsertStack(new ItemStack(temporarySlot.ID, slotAmount));
                     }
-                    if (index == 1)
+                    cursorSlot.itemSlot.InsertStack(new ItemStack(temporaryClickedSlot.ID, cursorAmount));
+
+                    if (cursorAmount != oldAmount)
                     {
-                        if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                        if (World.Instance.handCraftInventoryMenu.activeSelf)
+                        {
+                            World.Instance.handCraftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                        }
+                        if (World.Instance.craftInventoryMenu.activeSelf)
+                        {
+                            World.Instance.craftInventoryMenu.GetComponentInChildren<RecipeCrafter>().CraftObject();
+                        }
                     }
-                    if (index == 2) normalBehaviour = false;
+
                 }
-                if (container.properties.itemID == ItemID.CRAFTING_TABLE)
-                {
-                    int index = clickedSlot.itemSlot.GetIndex();
-                    if (index == 0) normalBehaviour = false;
-                }
-            }
-            if (normalBehaviour)
+            } 
+            else
             {
-                if (clickedSlot.itemSlot.stack.ID == cursorSlot.itemSlot.stack.ID)
+                bool normalBehaviour = true;
+                if (clickedSlot.lockPlace) normalBehaviour = false;
+                else
                 {
-                    int maxItemStack = world.itemTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
-                    if (clickedSlot.itemSlot.stack.amount < maxItemStack)
+                    if (clickedSlot.itemSlot.IsContainerLinked())
                     {
-                        int oldAmount = clickedSlot.itemSlot.stack.amount;
-                        int newAmount = clickedSlot.itemSlot.Add(1);
-                        if (newAmount != oldAmount) cursorSlot.itemSlot.Take(1);
+                        VoxelState container = clickedSlot.itemSlot.GetContainer();
+                        if (container.properties.itemID == ItemID.FURNANCE)
+                        {
+                            int index = clickedSlot.itemSlot.GetIndex();
+                            if (index == 0)
+                            {
+                                if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isSmeltable) return;
+                            }
+                            if (index == 1)
+                            {
+                                if (!World.Instance.itemTypes[cursorSlot.itemSlot.stack.ID].isFuel) return;
+                            }
+                            if (index == 2) normalBehaviour = false;
+                        }
+                        if (container.properties.itemID == ItemID.CRAFTING_TABLE)
+                        {
+                            int index = clickedSlot.itemSlot.GetIndex();
+                            if (index == 0) normalBehaviour = false;
+                        }
+                    }
+                }
+                if (normalBehaviour)
+                {
+                    if (clickedSlot.itemSlot.stack.ID == cursorSlot.itemSlot.stack.ID)
+                    {
+                        int maxItemStack = world.itemTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
+                        if (clickedSlot.itemSlot.stack.amount < maxItemStack)
+                        {
+                            int oldAmount = clickedSlot.itemSlot.stack.amount;
+                            int newAmount = clickedSlot.itemSlot.Add(1);
+                            if (newAmount != oldAmount) cursorSlot.itemSlot.Take(1);
+                        }
+                    }
+                    else
+                    {
+                        ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
+                        ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
+
+                        clickedSlot.itemSlot.InsertStack(temporarySlot);
+                        cursorSlot.itemSlot.InsertStack(temporaryClickedSlot);
                     }
                 }
                 else
                 {
-                    ItemStack temporarySlot = cursorSlot.itemSlot.TakeAll();
-                    ItemStack temporaryClickedSlot = clickedSlot.itemSlot.TakeAll();
-
-                    clickedSlot.itemSlot.InsertStack(temporarySlot);
-                    cursorSlot.itemSlot.InsertStack(temporaryClickedSlot);
-                }
-            }
-            else
-            {
-                if (clickedSlot.itemSlot.stack.ID == cursorSlot.itemSlot.stack.ID)
-                {
-                    int maxItemStack = world.itemTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
-                    if (cursorSlot.itemSlot.stack.amount < maxItemStack)
+                    if (clickedSlot.itemSlot.stack.ID == cursorSlot.itemSlot.stack.ID)
                     {
-                        int oldAmount = clickedSlot.itemSlot.stack.amount;
-                        int newAmount = cursorSlot.itemSlot.Add(1);
-                        if (newAmount != oldAmount) clickedSlot.itemSlot.Take(1);
+                        int maxItemStack = world.itemTypes[cursorSlot.itemSlot.stack.ID].maxItemStack;
+                        if (cursorSlot.itemSlot.stack.amount < maxItemStack)
+                        {
+                            int oldAmount = clickedSlot.itemSlot.stack.amount;
+                            int newAmount = cursorSlot.itemSlot.Add(1);
+                            if (newAmount != oldAmount) clickedSlot.itemSlot.Take(1);
+                        }
                     }
                 }
             }
