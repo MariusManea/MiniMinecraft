@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43befa78bf17d0849a41d9532679a434, type: 3}
   m_Name: Furnance
   m_EditorClassIdentifier: 
-  craftResult: 24
+  craftResult: 13
   craftAmount: 1
   rows: 3
   columns: 3
