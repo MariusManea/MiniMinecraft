@@ -26,4 +26,5 @@ public enum ToolType
     PICKAXE = 1,
     AXE = 2,
     NON_DROP = 3,
+    HOE = 4,
 }

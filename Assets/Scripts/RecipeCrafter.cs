@@ -52,11 +52,6 @@ public class RecipeCrafter : MonoBehaviour
             if (topRowWindow != -1 && bottomRowWindow != -1 && leftColumnWindow != -1 && rightColumnWindow != -1) {
                 foreach (RecipeData recipe in availableRecipes)
                 {
-                    Debug.Log("bottom row: " + bottomRowWindow);
-                    Debug.Log("top row: " + topRowWindow);
-                    Debug.Log("left column: " + leftColumnWindow);
-                    Debug.Log("right column: " + rightColumnWindow);
-
                     if (recipe.rows == (bottomRowWindow - topRowWindow + 1) && recipe.columns == (leftColumnWindow - rightColumnWindow + 1))
                     {
                         bool isGood = true;
@@ -64,8 +59,6 @@ public class RecipeCrafter : MonoBehaviour
                         {
                             for (int j = 0; j < recipe.columns && isGood; ++j)
                             {
-                                Debug.Log("At: " + i + " " + j + " recipe has " + recipe.rowData[i].columnData[j]);
-                                Debug.Log("At: " + i + " " + j + " slot has " + ((slots[(i + topRowWindow) * rows + (j + rightColumnWindow)].HasItem) ? slots[(i + topRowWindow) * rows + (j + rightColumnWindow)].itemSlot.stack.ID.ToString() : " nothing "));
                                 if (!((recipe.rowData[i].columnData[j] == ItemID.NON_DROP_BLOCK && (!slots[(i + topRowWindow) * rows + (j + rightColumnWindow)].HasItem || slots[(i + topRowWindow) * rows + (j + rightColumnWindow)].itemSlot.stack.amount == 0)) ||
                                     (slots[(i + topRowWindow) * rows + (j + rightColumnWindow)].HasItem && (byte)recipe.rowData[i].columnData[j] == slots[(i + topRowWindow) * rows + (j + rightColumnWindow)].itemSlot.stack.ID)))
                                 {

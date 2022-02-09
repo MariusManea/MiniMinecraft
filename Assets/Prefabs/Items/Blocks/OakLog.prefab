@@ -65,9 +65,12 @@ MonoBehaviour:
   itemID: 6
   isBlock: 1
   isTool: 0
+  isFood: 0
   isSmeltable: 1
   isFuel: 1
-  fuelTimer: 16
+  isSeed: 0
+  hasMultipleRandomDrop: 0
+  fuelTimer: 20
   targetSmeltItem: 26
   blockID: 7
   icon: {fileID: -2319476694228375547, guid: 7063a83753deb564892c3e381083af7e, type: 3}

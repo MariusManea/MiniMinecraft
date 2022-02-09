@@ -37,4 +37,12 @@ public enum VoxelBlockID
     DIAMOND_ORE_BLOCK = 30,
     OAK_SAPLING = 31,
     CRAFTING_TABLE = 32,
+    CARROT = 33,
+    CARROT_GROWN = 34,
+    POTATO = 35,
+    POTATO_GROWN = 36,
+    WHEAT_SEEDS = 37,
+    WHEAT = 38,
+    DRY_FARMLAND = 39,
+    WET_FARMLAND = 40,
 }

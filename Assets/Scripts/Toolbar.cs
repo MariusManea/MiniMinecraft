@@ -16,15 +16,15 @@ public class Toolbar : MonoBehaviour
         {
             ItemSlot emptySlot = new ItemSlot(s);
         }
-        new ItemSlot(uiItemSlots[0], new ItemStack((byte)ItemID.CHEST, 64));
-        new ItemSlot(uiItemSlots[1], new ItemStack((byte)ItemID.OAK_LOG, 64));
-        new ItemSlot(uiItemSlots[2], new ItemStack((byte)ItemID.CRAFTING_TABLE, 64));
+        new ItemSlot(uiItemSlots[0], new ItemStack((byte)ItemID.BOW, 1));
+        new ItemSlot(uiItemSlots[1], new ItemStack((byte)ItemID.ARROW, 64));
+        new ItemSlot(uiItemSlots[2], new ItemStack((byte)ItemID.BOSS_SUMMONER, 1));
         new ItemSlot(uiItemSlots[3], new ItemStack((byte)ItemID.DIAMOND_PICKAXE, 1));
-        new ItemSlot(uiItemSlots[4], new ItemStack((byte)ItemID.FURNANCE, 64));
-        new ItemSlot(uiItemSlots[5], new ItemStack((byte)ItemID.OAK_PLANKS, 64));
-        new ItemSlot(uiItemSlots[6], new ItemStack((byte)ItemID.IRON_AXE, 1));
+        new ItemSlot(uiItemSlots[4], new ItemStack((byte)ItemID.OAK_PLANKS, 64));
+        new ItemSlot(uiItemSlots[5], new ItemStack((byte)ItemID.DIAMOND, 64));
+        new ItemSlot(uiItemSlots[6], new ItemStack((byte)ItemID.IRON_INGOT, 64));
         new ItemSlot(uiItemSlots[7], new ItemStack((byte)ItemID.DIAMOND_AXE, 1));
-        new ItemSlot(uiItemSlots[8], new ItemStack((byte)ItemID.COBBLESTONE_BLOCK, 64));
+        new ItemSlot(uiItemSlots[8], new ItemStack((byte)ItemID.POTATO, 64));
     }
 
     private void Update()
@@ -137,6 +137,42 @@ public class Toolbar : MonoBehaviour
         }
 
         return firstEmptySlot;
+    }
+
+    public ItemSlot GetFirstArrowSlot()
+    {
+        foreach(UIItemSlot slot in uiItemSlots)
+        {
+            if (slot.HasItem && slot.itemSlot.stack.ID == (byte)ItemID.ARROW)
+            {
+                return slot.itemSlot;
+            } 
+        }
+
+        return null;
+    }
+
+    public void emptyInventory()
+    {
+        foreach (UIItemSlot slot in uiItemSlots)
+        {
+            if (slot.HasItem)
+            {
+                ItemStack items = slot.itemSlot.TakeAll();
+                for (int i = 0; i < items.amount; ++i)
+                {
+                    Item blockItem = GameObject.Instantiate(World.Instance.itemTypes[items.ID], player.transform.position + new Vector3(0.5f, 0.5f, 0.5f), new Quaternion());
+                    blockItem.verticalMomentum = Random.Range(2f, 6f);
+                    blockItem.horizontal = Random.Range(-1.0f, 1.0f);
+                    blockItem.vertical = Random.Range(-1.0f, 1.0f);
+                }
+            }
+        }
+    }
+
+    public void UseItemInHand()
+    {
+        uiItemSlots[slotIndex].itemSlot.Take(1);
     }
 
     public void ChangeItemInHand(Item _item)

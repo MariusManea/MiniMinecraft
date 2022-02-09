@@ -13,9 +13,10 @@ public static class VoxelData
     // Tick Updates Values
     public static readonly float TickLength = 0.1f;
     public static readonly float GrassSpreadSpeed = 0.0075f;
-    public static readonly float SaplingGrowthChance = 0.001f;
-    public static readonly int LogMaxDistance = 5;
-    public static readonly float LeavesDecaySpeed = 0.009f;
+    public static readonly float SaplingGrowthChance = 0.003f;
+    public static readonly float FarmlandTranformChance = 0.0075f;
+    public static readonly float SeedGrowOnDry = 0.001f;
+    public static readonly float SeedGrowOnWet = 0.005f;
 
     // Lighting Values
     public static readonly float minLightLevel = 0.005f;

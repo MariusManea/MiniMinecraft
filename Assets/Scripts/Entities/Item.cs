@@ -12,7 +12,11 @@ public class Item : Entity
     public bool isFood;
     public bool isSmeltable;
     public bool isFuel;
+    public bool isSeed;
+    public bool isCrop;
+    public bool hasMultipleRandomDrop;
     public float fuelTimer;
+    public float hungerValue;
     public ItemID targetSmeltItem;
     public VoxelBlockID blockID;
 

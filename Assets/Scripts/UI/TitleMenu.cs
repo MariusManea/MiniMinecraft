@@ -17,6 +17,8 @@ public class TitleMenu : MonoBehaviour
     [Header("Settings Menu UI Elements")]
     public Slider viewDistanceSlider;
     public TextMeshProUGUI viewDistanceText;
+    public Slider loadDistanceSlider;
+    public TextMeshProUGUI loadDistanceText;
     public Slider mouseSlider;
     public TextMeshProUGUI mouseText;
     public Toggle threadingToggle;
@@ -48,6 +50,9 @@ public class TitleMenu : MonoBehaviour
 
     public void EnterSettings()
     {
+        loadDistanceSlider.value = settings.loadDistance;
+        UpdateLoadDistanceSlider();
+
         viewDistanceSlider.value = settings.viewDistance;
         UpdateViewDistanceSlider();
 
@@ -65,6 +70,7 @@ public class TitleMenu : MonoBehaviour
 
     public void LeaveSettings()
     {
+        settings.loadDistance = (int)loadDistanceSlider.value;
         settings.viewDistance = (int)viewDistanceSlider.value;
         settings.mouseSensitivity = mouseSlider.value;
         settings.enableThreading = threadingToggle.isOn;
@@ -86,6 +92,11 @@ public class TitleMenu : MonoBehaviour
     public void UpdateViewDistanceSlider()
     {
         viewDistanceText.text = "View Distance: " + viewDistanceSlider.value;
+    }
+
+    public void UpdateLoadDistanceSlider()
+    {
+        loadDistanceText.text = "Load Distance: " + loadDistanceSlider.value;
     }
 
     public void UpdateMouseSlider()

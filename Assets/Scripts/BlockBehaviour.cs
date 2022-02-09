@@ -81,7 +81,22 @@ public static class BlockBehaviour
                     return true;
                 }
                 break;
-
+            case (byte)VoxelBlockID.DRY_FARMLAND:
+                return true;
+            case (byte)VoxelBlockID.WET_FARMLAND:
+                if (((voxel.neighbours[0] == null || voxel.neighbours[0].id != (byte)VoxelBlockID.WATER_BLOCK) &&
+                    (voxel.neighbours[1] == null || voxel.neighbours[1].id != (byte)VoxelBlockID.WATER_BLOCK) &&
+                    (voxel.neighbours[4] == null || voxel.neighbours[4].id != (byte)VoxelBlockID.WATER_BLOCK) &&
+                    (voxel.neighbours[5] == null || voxel.neighbours[5].id != (byte)VoxelBlockID.WATER_BLOCK)) ||
+                    (voxel.neighbours[2] != null && voxel.neighbours[2].id != (byte)VoxelBlockID.AIR_BLOCK && !World.Instance.itemTypes[(byte)voxel.neighbours[2].properties.itemID].isSeed && !World.Instance.itemTypes[(byte)voxel.neighbours[2].properties.itemID].isCrop))
+                {
+                    return true;
+                }
+                break;
+            case (byte)VoxelBlockID.CARROT:
+            case (byte)VoxelBlockID.POTATO:
+            case (byte)VoxelBlockID.WHEAT_SEEDS:
+                return true;
         }
 
         return false;
@@ -105,6 +120,17 @@ public static class BlockBehaviour
                 break;
             case (byte)VoxelBlockID.OAK_SAPLING:
                 SaplingBehaviour(voxel);
+                break;
+            case (byte)VoxelBlockID.DRY_FARMLAND:
+                DryFarmLandBehaviour(voxel);
+                break;
+            case (byte)VoxelBlockID.WET_FARMLAND:
+                WetFarmLandBehaviour(voxel);
+                break;
+            case (byte)VoxelBlockID.CARROT:
+            case (byte)VoxelBlockID.POTATO:
+            case (byte)VoxelBlockID.WHEAT_SEEDS:
+                SeedBehaviour(voxel);
                 break;
         }
 
@@ -184,6 +210,14 @@ public static class BlockBehaviour
 
     public static void SpawnMob(VoxelState voxel)
     {
+        for (int i = 0; i < EntitiesCounter.enemyCreaturesEntity.Count; i++)
+        {
+            if (EntitiesCounter.enemyCreaturesEntity[i] == null)
+            {
+                EntitiesCounter.enemyCreaturesEntity.RemoveAt(i);
+                i--;
+            }
+        }
         if (EntitiesCounter.enemyCreaturesEntity.Count >= EntitiesCounter.mobCap) return;
         if (voxel.light > 7) return;
         if (Vector3.Distance(voxel.globalPosition, World.Instance.player.position) < EntitiesCounter.spawnMinDistance) return;
@@ -308,6 +342,80 @@ public static class BlockBehaviour
             }
             World.Instance.AddToModificationsList(Structure.MakeTree(voxel.globalPosition, Mathf.Clamp(maxHeight - 4, 1, maxHeight), maxHeight));
             voxel.chunkData.ModifyVoxel(voxel.position, (byte)VoxelBlockID.OAK_LOG, voxel.orientation);
+        }
+    }
+
+    public static void DryFarmLandBehaviour(VoxelState voxel)
+    {
+        if (voxel.neighbours[2] != null && voxel.neighbours[2].id != (byte)VoxelBlockID.AIR_BLOCK && !World.Instance.itemTypes[(byte)voxel.neighbours[2].properties.itemID].isSeed && !World.Instance.itemTypes[(byte)voxel.neighbours[2].properties.itemID].isCrop)
+        {
+            voxel.chunkData.chunk.RemoveActiveVoxel(voxel);
+            voxel.chunkData.ModifyVoxel(voxel.position, (byte)VoxelBlockID.DIRT_BLOCK, 0);
+            return;
+        }
+
+        if ((voxel.neighbours[0] != null && voxel.neighbours[0].id == (byte)VoxelBlockID.WATER_BLOCK) ||
+            (voxel.neighbours[1] != null && voxel.neighbours[1].id == (byte)VoxelBlockID.WATER_BLOCK) ||
+            (voxel.neighbours[4] != null && voxel.neighbours[4].id == (byte)VoxelBlockID.WATER_BLOCK) ||
+            (voxel.neighbours[5] != null && voxel.neighbours[5].id == (byte)VoxelBlockID.WATER_BLOCK))
+        {
+            if (Random.Range(0.0f, 1.0f) < VoxelData.FarmlandTranformChance)
+            {
+                voxel.chunkData.ModifyVoxel(voxel.position, (byte)VoxelBlockID.WET_FARMLAND, 1);
+            }
+        }
+        else
+        {
+            if (Random.Range(0.0f, 1.0f) < VoxelData.FarmlandTranformChance)
+            {
+                voxel.chunkData.ModifyVoxel(voxel.position, (byte)VoxelBlockID.DIRT_BLOCK, 0);
+            }
+        }
+    }
+
+    public static void WetFarmLandBehaviour(VoxelState voxel)
+    {
+        if (voxel.neighbours[2] != null && voxel.neighbours[2].id != (byte)VoxelBlockID.AIR_BLOCK && !World.Instance.itemTypes[(byte)voxel.neighbours[2].properties.itemID].isSeed && !World.Instance.itemTypes[(byte)voxel.neighbours[2].properties.itemID].isCrop)
+        {
+            voxel.chunkData.chunk.RemoveActiveVoxel(voxel);
+            voxel.chunkData.ModifyVoxel(voxel.position, (byte)VoxelBlockID.DIRT_BLOCK, 0);
+            return;
+        }
+
+        if ((voxel.neighbours[0] == null || voxel.neighbours[0].id != (byte)VoxelBlockID.WATER_BLOCK) &&
+            (voxel.neighbours[1] == null || voxel.neighbours[1].id != (byte)VoxelBlockID.WATER_BLOCK) &&
+            (voxel.neighbours[4] == null || voxel.neighbours[4].id != (byte)VoxelBlockID.WATER_BLOCK) &&
+            (voxel.neighbours[5] == null || voxel.neighbours[5].id != (byte)VoxelBlockID.WATER_BLOCK))
+        {
+            if (Random.Range(0.0f, 1.0f) < VoxelData.FarmlandTranformChance)
+            {
+                voxel.chunkData.ModifyVoxel(voxel.position, (byte)VoxelBlockID.DRY_FARMLAND, 1);
+            }
+        }
+    }
+
+    public static void SeedBehaviour(VoxelState voxel)
+    {
+        if (voxel.neighbours[3] == null || (voxel.neighbours[3].id != (byte)VoxelBlockID.DRY_FARMLAND && voxel.neighbours[3].id != (byte)VoxelBlockID.WET_FARMLAND)) {
+            voxel.chunkData.chunk.RemoveActiveVoxel(voxel);
+            Item blockItem = GameObject.Instantiate(World.Instance.itemTypes[(byte)voxel.properties.dropItemID], voxel.globalPosition + new Vector3(0.5f, 0.5f, 0.5f), new Quaternion());
+            blockItem.verticalMomentum = Random.Range(2f, 6f);
+            blockItem.horizontal = Random.Range(-1.0f, 1.0f);
+            blockItem.vertical = Random.Range(-1.0f, 1.0f);
+            voxel.chunkData.ModifyVoxel(voxel.position, (byte)VoxelBlockID.AIR_BLOCK, 0);
+            return;
+        }
+        float growthChance = VoxelData.SeedGrowOnWet;
+        if (voxel.neighbours[3] != null && voxel.neighbours[3].id == (byte)VoxelBlockID.DRY_FARMLAND) growthChance = VoxelData.SeedGrowOnDry;
+
+        if (Random.Range(0.0f, 1.0f) < growthChance)
+        {
+            voxel.chunkData.chunk.RemoveActiveVoxel(voxel);
+            VoxelBlockID growID = VoxelBlockID.AIR_BLOCK;
+            if (voxel.id == (byte)VoxelBlockID.CARROT) growID = VoxelBlockID.CARROT_GROWN;
+            if (voxel.id == (byte)VoxelBlockID.POTATO) growID = VoxelBlockID.POTATO_GROWN;
+            if (voxel.id == (byte)VoxelBlockID.WHEAT_SEEDS) growID = VoxelBlockID.WHEAT;
+            voxel.chunkData.ModifyVoxel(voxel.position, (byte)growID, 0);
         }
     }
 }

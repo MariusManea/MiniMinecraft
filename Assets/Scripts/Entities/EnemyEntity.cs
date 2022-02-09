@@ -18,6 +18,13 @@ public class EnemyEntity : Entity
     public Player target;
 
     public float damage;
+    public Animator enemyAnimator;
+
+    private Vector3 patrolDisplacement;
+    private bool patrolDisplacementX;
+    private bool patrolDisplacementZ;
+    private float verticalPatrol;
+    protected bool invincible = false;
 
     protected override void Awake()
     {
@@ -73,6 +80,7 @@ public class EnemyEntity : Entity
                 {
                     searchTime -= Time.deltaTime;
                 }
+                vertical = verticalPatrol;
             }
             else
             {
@@ -89,8 +97,23 @@ public class EnemyEntity : Entity
             if (jumpRequest) Jump();
 
             CalculateVelocity();
+            if (velocity.x != 0 || velocity.z != 0)
+            {
+                enemyAnimator.SetBool("Walking", true);
+            }
+            else
+            {
+                enemyAnimator.SetBool("Walking", false);
+            }
 
-            RotateTowardsTargetPoint(target.transform.position);
+            patrolDisplacement.x += Random.Range(0.0f, 2.0f) * Time.deltaTime * (patrolDisplacementX ? 1 : -1);
+            patrolDisplacement.z += Random.Range(0.0f, 2.0f) * Time.deltaTime * (patrolDisplacementZ ? 1 : -1);
+            if (patrolDisplacement.x > 1) { patrolDisplacement.x = 1; patrolDisplacementX = !patrolDisplacementX; }
+            if (patrolDisplacement.x < -1) { patrolDisplacement.x = -1; patrolDisplacementX = !patrolDisplacementX; }
+            if (patrolDisplacement.z > 1) { patrolDisplacement.z = 1; patrolDisplacementZ = !patrolDisplacementZ; }
+            if (patrolDisplacement.z < -1) { patrolDisplacement.z = -1; patrolDisplacementZ = !patrolDisplacementZ; }
+
+            RotateTowardsTargetPoint(targetInRange ? target.transform.position : new Vector3(transform.position.x + patrolDisplacement.x, 0, transform.position.z + patrolDisplacement.z));
 
             transform.Translate(velocity, Space.World);
         }
@@ -114,6 +137,10 @@ public class EnemyEntity : Entity
         if (Vector3.Distance(this.transform.position, target.transform.position) < detectionRange)
         {
             targetInRange = true;
+        } 
+        else
+        {
+            verticalPatrol = Mathf.Clamp(verticalPatrol + Random.Range(-0.4f, 0.4f), 0, 1);
         }
     }
 
@@ -171,12 +198,12 @@ public class EnemyEntity : Entity
 
     protected virtual void Attack()
     {
-
+        enemyAnimator.SetTrigger("Attack");
     }
 
     private void OnDestroy()
     {
-        EntitiesCounter.enemyCreaturesEntity.Remove(this);
+        EntitiesCounter.enemyCreaturesEntity.Remove(this.GetComponent<Entity>());
     }
 
     protected virtual bool ClearLineOfSight()
@@ -193,5 +220,26 @@ public class EnemyEntity : Entity
             checkPosition += (targetPosition - checkPosition) * 0.5f;
         }
         return true;
+    }
+
+    public virtual void ChangeHealth(float amount, Vector3 knockbackDirection)
+    {
+        if (!invincible)
+        {
+            health += amount;
+
+            if (amount < 0)
+            {
+                verticalMomentum = 4;
+                knockbackDirection.z = -knockbackDirection.z;
+                Quaternion diff = Quaternion.LookRotation(knockbackDirection - transform.forward, Vector3.up);
+                horizontalMomentum = diff * knockbackDirection;
+            }
+
+            if (health <= 0)
+            {
+                Destroy(this.gameObject);
+            }
+        }
     }
 }

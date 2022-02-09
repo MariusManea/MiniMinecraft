@@ -65,8 +65,11 @@ MonoBehaviour:
   itemID: 10
   isBlock: 1
   isTool: 0
+  isFood: 0
   isSmeltable: 0
   isFuel: 1
+  isSeed: 0
+  hasMultipleRandomDrop: 1
   fuelTimer: 1
   targetSmeltItem: 10
   blockID: 11

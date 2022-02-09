@@ -134,6 +134,24 @@ public class ContainerInventory : MonoBehaviour
         }
     }
 
+    public void emptyInventory()
+    {
+        foreach (ItemSlot slot in slots)
+        {
+            if (slot.HasItem)
+            {
+                ItemStack items = slot.TakeAll();
+                for (int i = 0; i < items.amount; ++i)
+                {
+                    Item blockItem = GameObject.Instantiate(World.Instance.itemTypes[items.ID], world._player.transform.position + new Vector3(0.5f, 0.5f, 0.5f), new Quaternion());
+                    blockItem.verticalMomentum = Random.Range(2f, 6f);
+                    blockItem.horizontal = Random.Range(-1.0f, 1.0f);
+                    blockItem.vertical = Random.Range(-1.0f, 1.0f);
+                }
+            }
+        }
+    }
+
     public void OnDisable()
     {
         if (!permanentContainer)

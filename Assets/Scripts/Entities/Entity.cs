@@ -30,6 +30,7 @@ public class Entity : MonoBehaviour
     public float entityHeight = 1.85f;
 
     public float verticalMomentum = 0;
+    public Vector3 horizontalMomentum = Vector3.zero;
     protected bool jumpRequest;
 
     public int orientation;
@@ -68,7 +69,17 @@ public class Entity : MonoBehaviour
         }
 
         float speed = (!isCrouching ? (isSprinting ? sprintSpeed : walkSpeed) : crouchSpeed);
-        velocity = ((transform.forward * vertical) + (transform.right * horizontal)) * Time.deltaTime * speed;
+
+        if (horizontalMomentum.magnitude != 0)
+        {
+            velocity = ((transform.forward * horizontalMomentum.z) + (transform.right * horizontalMomentum.x) * Time.deltaTime * sprintSpeed);
+            horizontalMomentum /= 1.2f;
+            if (horizontalMomentum.magnitude < 0.005f) horizontalMomentum = Vector3.zero;
+        }
+        else
+        {
+            velocity = ((transform.forward * vertical) + (transform.right * horizontal)) * Time.deltaTime * speed;
+        }
 
         velocity += Vector3.up * verticalMomentum * Time.deltaTime;
 
@@ -95,7 +106,7 @@ public class Entity : MonoBehaviour
             else
             {
                 if ((velocity.z > 0 && front == 1) || (velocity.z < 0 && back == 1)) velocity.z /= 2;
-                else velocity.z = 0;
+                else { velocity.z = 0; horizontalMomentum.z = 0; }
             }
         }
         if ((velocity.x > 0 && right != 0) || (velocity.x < 0 && left != 0))
@@ -107,7 +118,7 @@ public class Entity : MonoBehaviour
             else
             {
                 if ((velocity.x > 0 && right == 1) || (velocity.x < 0 && left == 1)) velocity.x /= 2;
-                else velocity.x = 0;
+                else { velocity.x = 0; horizontalMomentum.x = 0; }
             }
         }
 

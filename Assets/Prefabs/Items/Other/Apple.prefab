@@ -59,6 +59,7 @@ MonoBehaviour:
   deltaWidth: 0.2
   entityHeight: 0.3
   verticalMomentum: 0
+  horizontalMomentum: {x: 0, y: 0, z: 0}
   orientation: 0
   health: 20
   itemName: Apple
@@ -68,7 +69,11 @@ MonoBehaviour:
   isFood: 1
   isSmeltable: 0
   isFuel: 0
+  isSeed: 0
+  isCrop: 0
+  hasMultipleRandomDrop: 0
   fuelTimer: 0
+  hungerValue: 2
   targetSmeltItem: 9999
   blockID: 0
   icon: {fileID: 21300000, guid: 8a48570a4b04a154c81fc2caf37e2aad, type: 3}

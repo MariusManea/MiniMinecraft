@@ -724,52 +724,52 @@ TextureImporter:
     second: OakSapling
   - first:
       213: 4334046026374930222
-    second: Icons_240
+    second: Carrot
   - first:
       213: 734650624415845977
-    second: Icons_241
+    second: Potato
   - first:
       213: 2053093125500070427
-    second: Icons_242
+    second: BakedPotato
   - first:
       213: 114025955390891461
-    second: Icons_243
+    second: Wheat
   - first:
       213: -8924638685331413173
-    second: Icons_244
+    second: Bread
   - first:
       213: -214852119133002334
-    second: Icons_245
+    second: WheatSeeds
   - first:
       213: -4800297939186570267
-    second: Icons_246
+    second: RawMutton
   - first:
       213: -5512342666601235627
-    second: Icons_247
+    second: CookedMutton
   - first:
       213: 8041103296157537302
-    second: Icons_248
+    second: WoodHoe
   - first:
       213: 3482966680893084644
-    second: Icons_249
+    second: StoneHoe
   - first:
       213: 3322163837556109648
-    second: Icons_250
+    second: IronHoe
   - first:
       213: 2136759502764776968
-    second: Icons_251
+    second: DiamondHoe
   - first:
       213: 5363007016751499711
-    second: Icons_252
+    second: Arrow
   - first:
       213: -416810971108490623
-    second: Icons_253
+    second: Bow
   - first:
       213: -3531310096854666049
-    second: Icons_254
+    second: String
   - first:
       213: 7762128574218316705
-    second: Icons_255
+    second: BossSummoner
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -5923,7 +5923,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_240
+      name: Carrot
       rect:
         serializedVersion: 2
         x: 0
@@ -5944,7 +5944,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_241
+      name: Potato
       rect:
         serializedVersion: 2
         x: 32
@@ -5965,7 +5965,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_242
+      name: BakedPotato
       rect:
         serializedVersion: 2
         x: 64
@@ -5986,7 +5986,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_243
+      name: Wheat
       rect:
         serializedVersion: 2
         x: 96
@@ -6007,7 +6007,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_244
+      name: Bread
       rect:
         serializedVersion: 2
         x: 128
@@ -6028,7 +6028,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_245
+      name: WheatSeeds
       rect:
         serializedVersion: 2
         x: 160
@@ -6049,7 +6049,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_246
+      name: RawMutton
       rect:
         serializedVersion: 2
         x: 192
@@ -6070,7 +6070,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_247
+      name: CookedMutton
       rect:
         serializedVersion: 2
         x: 224
@@ -6091,10 +6091,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_248
+      name: WoodHoe
       rect:
         serializedVersion: 2
-        x: 256
+        x: 255
         y: 0
         width: 32
         height: 32
@@ -6112,7 +6112,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_249
+      name: StoneHoe
       rect:
         serializedVersion: 2
         x: 288
@@ -6133,7 +6133,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_250
+      name: IronHoe
       rect:
         serializedVersion: 2
         x: 320
@@ -6154,7 +6154,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_251
+      name: DiamondHoe
       rect:
         serializedVersion: 2
         x: 352
@@ -6175,7 +6175,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_252
+      name: Arrow
       rect:
         serializedVersion: 2
         x: 384
@@ -6196,11 +6196,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_253
+      name: Bow
       rect:
         serializedVersion: 2
         x: 416
-        y: 0
+        y: 1
         width: 32
         height: 32
       alignment: 0
@@ -6217,7 +6217,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_254
+      name: String
       rect:
         serializedVersion: 2
         x: 448
@@ -6238,7 +6238,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Icons_255
+      name: BossSummoner
       rect:
         serializedVersion: 2
         x: 480

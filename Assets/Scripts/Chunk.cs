@@ -47,6 +47,7 @@ public class Chunk
         chunkObject.transform.parent = World.Instance.transform;
         chunkObject.transform.position = new Vector3(coord.x * VoxelData.ChunkWidth, 0f, coord.z * VoxelData.ChunkWidth);
         chunkObject.name = "chunk_x_" + coord.x + "_z_" + coord.z;
+        chunkObject.layer = LayerMask.NameToLayer("Terrain");
         position = chunkObject.transform.position;
 
         chunkData = World.Instance.worldData.RequestChunk(new Vector2Int((int)position.x, (int)position.z), true);
@@ -351,6 +352,22 @@ public class Chunk
         UpdateSurroundingVoxels(xCheck, yCheck, zCheck);
     }
 
+    public void EditVoxel(Vector3 pos, byte newID, int direction)
+    {
+        int xCheck = Mathf.FloorToInt(pos.x);
+        int yCheck = Mathf.FloorToInt(pos.y);
+        int zCheck = Mathf.FloorToInt(pos.z);
+
+        xCheck -= Mathf.FloorToInt(chunkObject.transform.position.x);
+        zCheck -= Mathf.FloorToInt(chunkObject.transform.position.z);
+
+        chunkData.ModifyVoxel(new Vector3Int(xCheck, yCheck, zCheck), newID, direction);
+
+        UpdateSurroundingVoxels(xCheck, yCheck, zCheck);
+    }
+
+
+
     public void UpdateSpawnableList(byte _id, Vector3Int pos)
     {
         if (_id == (byte)VoxelBlockID.AIR_BLOCK)
@@ -390,11 +407,11 @@ public class Chunk
 
             if (pos.y > 0)
             {
-                RemoveActiveVoxel(chunkData.map[pos.x, pos.y - 1, pos.z]);
+                RemoveSpawnableVoxel(chunkData.map[pos.x, pos.y - 1, pos.z]);
             }
             if (pos.y > 1)
             {
-                RemoveActiveVoxel(chunkData.map[pos.x, pos.y - 2, pos.z]);
+                RemoveSpawnableVoxel(chunkData.map[pos.x, pos.y - 2, pos.z]);
             }
         }
     }

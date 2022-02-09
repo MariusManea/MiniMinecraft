@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
 using System.IO;
+using UnityEngine.UI;
 
 public class World : MonoBehaviour
 {
@@ -46,6 +47,7 @@ public class World : MonoBehaviour
     public Queue<Chunk> chunksToDraw = new Queue<Chunk>();
 
     private bool _inUI = false;
+    private bool _inFirstPerson = true;
     private bool _mainUI = false;
 
     public GameObject creativeInventoryMenu;
@@ -68,6 +70,9 @@ public class World : MonoBehaviour
 
     private static World _instance;
     public static World Instance { get { return _instance; } }
+
+    public Image bossHealthBar;
+    public Boss boss;
 
     private void Awake()
     {
@@ -177,10 +182,10 @@ public class World : MonoBehaviour
             debugScreen.SetActive(!debugScreen.activeSelf);
         }
 
-        if (Input.GetKeyDown(KeyCode.F1))
+       /* if (Input.GetKeyDown(KeyCode.F1))
         {
             SaveSystem.SaveWorld(worldData);
-        }
+        }*/
     }
 
     void LoadWorld()
@@ -503,6 +508,33 @@ public class World : MonoBehaviour
             {
                 armorInventoryMenu.SetActive(false);
                 handCraftInventoryMenu.SetActive(false);
+            }
+        }
+    }
+
+    public bool inFirstPerson
+    {
+        get { return _inFirstPerson; }
+        set
+        {
+            _inFirstPerson = value;
+            if (_inFirstPerson)
+            {
+                _player.FPSCamera.GetComponent<Camera>().enabled = true;
+                _player.itemsCamera.enabled = true;
+                _player.thirdPersonCamera.enabled = false;
+                _player.steve.SetActive(false);
+            } 
+            else
+            {
+                _player.FPSCamera.GetComponent<Camera>().enabled = false;
+                _player.itemsCamera.enabled = false;
+                _player.thirdPersonCamera.enabled = true;
+                _player.steve.SetActive(true);
+            }
+            if (_player.equippedItem)
+            {
+                _player.EquipItem(_player.equippedItem);
             }
         }
     }
